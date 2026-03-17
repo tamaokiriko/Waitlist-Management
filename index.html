@@ -1,0 +1,1407 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ETABLE Waitlist</title>
+    <!-- Tailwind CDN (utilityクラスをそのまま利用するため) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Geist', 'system-ui', 'sans-serif'],
+              mono: ['Geist Mono', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      /* globals.css からのカスタムプロパティをそのまま移植 */
+      :root {
+        --background: oklch(0.98 0 0);
+        --foreground: oklch(0.145 0 0);
+        --card: oklch(1 0 0);
+        --card-foreground: oklch(0.145 0 0);
+        --popover: oklch(1 0 0);
+        --popover-foreground: oklch(0.145 0 0);
+        --primary: oklch(0.205 0 0);
+        --primary-foreground: oklch(0.985 0 0);
+        --secondary: oklch(0.97 0 0);
+        --secondary-foreground: oklch(0.205 0 0);
+        --muted: oklch(0.97 0 0);
+        --muted-foreground: oklch(0.556 0 0);
+        --accent: oklch(0.97 0 0);
+        --accent-foreground: oklch(0.205 0 0);
+        --destructive: oklch(0.577 0.245 27.325);
+        --destructive-foreground: oklch(0.577 0.245 27.325);
+        --border: oklch(0.922 0 0);
+        --input: oklch(0.922 0 0);
+        --ring: oklch(0.708 0 0);
+        --chart-1: oklch(0.646 0.222 41.116);
+        --chart-2: oklch(0.6 0.118 184.704);
+        --chart-3: oklch(0.398 0.07 227.392);
+        --chart-4: oklch(0.828 0.189 84.429);
+        --chart-5: oklch(0.769 0.188 70.08);
+        --radius: 0.625rem;
+        --sidebar: oklch(0.985 0 0);
+        --sidebar-foreground: oklch(0.145 0 0);
+        --sidebar-primary: oklch(0.205 0 0);
+        --sidebar-primary-foreground: oklch(0.985 0 0);
+        --sidebar-accent: oklch(0.97 0 0);
+        --sidebar-accent-foreground: oklch(0.205 0 0);
+        --sidebar-border: oklch(0.922 0 0);
+        --sidebar-ring: oklch(0.708 0 0);
+        /* ETABLE Custom Colors */
+        --etable-orange: #FD780F;
+        --etable-orange-light: #FFF7ED;
+        --etable-navy: #082752;
+        --etable-green: #22C55E;
+        --etable-green-light: #DCFCE7;
+        --etable-waiting-bg: #F0FDF4;
+        --etable-calling-bg: #FFF7ED;
+        --etable-guiding-bg: #EFF6FF;
+      }
+
+      body {
+        background-color: var(--background);
+        color: var(--foreground);
+      }
+
+      /* Tailwind pluginの代表クラスだけ移植（デザイン変更なしで挙動を再現） */
+      .animate-in {
+        animation-duration: 150ms;
+        animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        animation-fill-mode: both;
+      }
+      .slide-in-from-left {
+        --tw-translate-x: -100%;
+        animation-name: slide-in-from-left;
+      }
+      @keyframes slide-in-from-left {
+        from {
+          transform: translateX(-100%);
+        }
+        to {
+          transform: translateX(0);
+        }
+      }
+    </style>
+  </head>
+  <body class="bg-background text-foreground">
+    <div class="max-w-md mx-auto bg-background min-h-screen shadow-2xl">
+      <div id="app-root"></div>
+    </div>
+
+    <script>
+      // React/Store のロジックをプレーンJSに移植
+
+      const initialGuests = [
+        { id: '1', number: 1, partySize: 2, seatType: 'TABLE', status: 'WAITING', createdAt: Date.now() - 300000 },
+        { id: '2', number: 2, partySize: 4, seatType: 'TABLE', status: 'WAITING', createdAt: Date.now() - 240000 },
+        { id: '4', number: 4, partySize: 2, seatType: 'ANY', status: 'WAITING', createdAt: Date.now() - 120000 },
+      ];
+
+      const state = {
+        currentScreen: 'login',
+        isReceptionPaused: false,
+        guests: initialGuests.slice(),
+        filterTab: 'all',
+        sidebarOpen: false,
+        nextNumber: 5,
+        todayGuidedCount: 0,
+        cancelledCount: 0,
+        waitTimeOffset: 0,
+        selectedGuestIdForCall: null,
+        callModalOpen: false,
+        showEndConfirm: false,
+        email: '',
+        password: '',
+        closedSliderX: 0,
+        closedIsDragging: false,
+      };
+
+      function setCurrentScreen(screen) {
+        state.currentScreen = screen;
+        render();
+      }
+
+      function setIsReceptionPaused(paused) {
+        state.isReceptionPaused = paused;
+        render();
+      }
+
+      function setFilterTab(tab) {
+        state.filterTab = tab;
+        render();
+      }
+
+      function setSidebarOpen(open) {
+        state.sidebarOpen = open;
+        render();
+      }
+
+      function setWaitTimeOffset(offset) {
+        state.waitTimeOffset = offset;
+        render();
+      }
+
+      function addGuest(partySize, seatType) {
+        const newGuest = {
+          id: crypto.randomUUID(),
+          number: state.nextNumber,
+          partySize,
+          seatType,
+          status: 'WAITING',
+          createdAt: Date.now(),
+        };
+        state.guests = [...state.guests, newGuest];
+        state.nextNumber += 1;
+        render();
+      }
+
+      function updateGuestStatus(id, status, notificationMethod) {
+        state.guests = state.guests.map((guest) => {
+          if (guest.id !== id) return guest;
+          const updates = { status };
+          if (status === 'CALLING') {
+            updates.calledAt = Date.now();
+            updates.notificationMethod = notificationMethod;
+          } else if (status === 'GUIDING') {
+            updates.guidedAt = Date.now();
+          } else if (status === 'HOLD') {
+            updates.holdAt = Date.now();
+          } else if (status === 'COMPLETED') {
+            state.todayGuidedCount += 1;
+          } else if (status === 'CANCELLED') {
+            state.cancelledCount += 1;
+          }
+          return Object.assign({}, guest, updates);
+        });
+        render();
+      }
+
+      function removeGuest(id) {
+        state.guests = state.guests.filter((g) => g.id !== id);
+        render();
+      }
+
+      function resetGuests() {
+        state.guests = [];
+        state.nextNumber = 1;
+        state.todayGuidedCount = 0;
+        state.cancelledCount = 0;
+        state.waitTimeOffset = 0;
+        render();
+      }
+
+      function computeDerived() {
+        const waitingCount = state.guests.filter((g) => g.status === 'WAITING').length;
+        const callingCount = state.guests.filter((g) => g.status === 'CALLING').length;
+        const guidingCount = state.guests.filter((g) => g.status === 'GUIDING').length;
+        const holdCount = state.guests.filter((g) => g.status === 'HOLD').length;
+        const estimatedWaitTime = waitingCount * 10 + state.waitTimeOffset;
+
+        const activeGuests = state.guests.filter(
+          (g) => !['COMPLETED', 'CANCELLED', 'HOLD'].includes(g.status)
+        );
+        let filteredGuests = activeGuests.filter((guest) => {
+          switch (state.filterTab) {
+            case '1-2':
+              return guest.partySize <= 2;
+            case 'table':
+              return guest.seatType === 'TABLE';
+            case 'counter':
+              return guest.seatType === 'COUNTER';
+            default:
+              return true;
+          }
+        });
+        filteredGuests = filteredGuests.sort((a, b) => {
+          const statusOrder = { GUIDING: 0, CALLING: 1, WAITING: 2 };
+          const orderA = statusOrder[a.status] ?? 3;
+          const orderB = statusOrder[b.status] ?? 3;
+          if (orderA !== orderB) return orderA - orderB;
+          return a.createdAt - b.createdAt;
+        });
+
+        const holdGuests = state.guests.filter((g) => g.status === 'HOLD');
+
+        return {
+          waitingCount,
+          callingCount,
+          guidingCount,
+          holdCount,
+          estimatedWaitTime,
+          filteredGuests,
+          holdGuests,
+        };
+      }
+
+      function formatElapsedTime(startTime) {
+        const elapsed = Math.floor((Date.now() - startTime) / 1000);
+        const minutes = Math.floor(elapsed / 60);
+        const seconds = elapsed % 60;
+        return minutes + ':' + String(seconds).padStart(2, '0');
+      }
+
+      function getSeatTypeLabel(seatType) {
+        switch (seatType) {
+          case 'TABLE':
+            return 'テーブル';
+          case 'COUNTER':
+            return 'カウンター';
+          default:
+            return 'どちらでも';
+        }
+      }
+
+      function renderLogin() {
+        return (
+          '<div class="min-h-screen bg-white flex flex-col items-center justify-center px-6">' +
+          '  <div class="w-full max-w-sm">' +
+          '    <div class="mb-2">' +
+          '      <h1 class="text-4xl font-bold tracking-tight">' +
+          '        <span class="text-[#FD780F]">E</span>' +
+          '        <span class="text-[#082752]">TABLE</span>' +
+          '      </h1>' +
+          '    </div>' +
+          '    <p class="text-xs tracking-[0.3em] text-gray-400 mb-12">PREMIUM WAITLIST APP</p>' +
+          '    <div class="space-y-4">' +
+          '      <div class="flex items-center gap-3 border border-gray-200 rounded-2xl px-4 py-4">' +
+          '        <svg class="w-5 h-5 text-gray-400" stroke-width="1.5" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
+          '          <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4Z"></path>' +
+          '          <path d="M6 20c0-2.21 2.686-4 6-4s6 1.79 6 4"></path>' +
+          '        </svg>' +
+          '        <input id="login-email" type="text" placeholder="電話番号 または メールアドレス" class="flex-1 text-sm text-gray-600 placeholder-gray-400 outline-none bg-transparent" />' +
+          '      </div>' +
+          '      <div class="flex items-center gap-3 border border-gray-200 rounded-2xl px-4 py-4">' +
+          '        <svg class="w-5 h-5 text-gray-400" stroke-width="1.5" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
+          '          <rect x="3" y="11" width="18" height="10" rx="2"></rect>' +
+          '          <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>' +
+          '        </svg>' +
+          '        <input id="login-password" type="password" placeholder="パスワード" class="flex-1 text-sm text-gray-600 placeholder-gray-400 outline-none bg-transparent" />' +
+          '      </div>' +
+          '      <button id="login-button" class="w-full mt-6 bg-gradient-to-r from-[#FD780F] to-[#FFB347] text-white font-semibold py-4 rounded-full flex items-center justify-center gap-2 shadow-lg shadow-orange-200 hover:shadow-xl hover:shadow-orange-300 transition-all">' +
+          '        <span>ログイン</span>' +
+          '        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
+          '          <path d="M5 12h14"></path>' +
+          '          <path d="m13 18 6-6-6-6"></path>' +
+          '        </svg>' +
+          '      </button>' +
+          '    </div>' +
+          '    <p class="text-center text-xs text-gray-400 mt-16">&copy; 2025 ETABLE. All Rights Reserved.</p>' +
+          '  </div>' +
+          '</div>'
+        );
+      }
+
+      function renderClosedScreen() {
+        return (
+          '<div class="min-h-screen bg-white flex flex-col">' +
+          '  <div class="px-6 pt-8">' +
+          '    <h1 class="text-2xl font-bold tracking-tight">' +
+          '      <span class="text-[#FD780F]">E</span>' +
+          '      <span class="text-[#082752]">TABLE</span>' +
+          '    </h1>' +
+          '  </div>' +
+          '  <div class="flex-1 flex flex-col items-center justify-center px-6">' +
+          '    <div class="w-28 h-28 rounded-full bg-[#FFF7ED] flex items-center justify-center mb-8">' +
+          '      <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#FD780F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">' +
+          '        <circle cx="12" cy="12" r="10"></circle>' +
+          '        <polyline points="12 6 12 12 16 14"></polyline>' +
+          '        <line x1="4" y1="4" x2="20" y2="20"></line>' +
+          '      </svg>' +
+          '    </div>' +
+          '    <h2 class="text-3xl font-bold text-[#082752] mb-4">受付停止中</h2>' +
+          '    <p class="text-gray-400 text-center text-sm leading-relaxed">' +
+          '      今日もたくさんのお客様に<br />' +
+          '      美味しい体験を届けましょう。' +
+          '    </p>' +
+          '  </div>' +
+          '  <div class="px-6 pb-12">' +
+          '    <div id="closed-slider-container" class="relative bg-gray-100 rounded-full h-16 flex items-center overflow-hidden">' +
+          '      <span class="absolute inset-0 flex items-center justify-center text-gray-400 text-sm font-medium">スライドして開店</span>' +
+          '      <div id="closed-slider" class="absolute left-1 top-1 bottom-1 w-14 bg-white rounded-full shadow-lg flex items-center justify-center cursor-grab active:cursor-grabbing transition-transform" style="transform: translateX(' +
+          state.closedSliderX +
+          'px)">' +
+          '        <svg class="w-6 h-6 text-[#FD780F]" viewBox="0 0 24 24" fill="#FD780F" stroke="#FD780F">' +
+          '          <polygon points="5 3 19 12 5 21 5 3"></polygon>' +
+          '        </svg>' +
+          '      </div>' +
+          '    </div>' +
+          '  </div>' +
+          '</div>'
+        );
+      }
+
+      function renderGuestCard(guest) {
+        const statusBadge =
+          guest.status === 'CALLING'
+            ? '<span class="px-3 py-1 text-xs font-medium rounded-full bg-[#FD780F] text-white">案内待ち</span>'
+            : guest.status === 'GUIDING'
+            ? '<span class="px-3 py-1 text-xs font-medium rounded-full bg-[#22C55E] text-white">案内中</span>'
+            : '';
+
+        const bgClass =
+          guest.status === 'CALLING'
+            ? 'bg-gradient-to-r from-[#FFF7ED] to-white'
+            : guest.status === 'GUIDING'
+            ? 'bg-gradient-to-r from-[#F0FDF4] to-white'
+            : 'bg-white';
+
+        let actionButton = '';
+        if (guest.status === 'WAITING') {
+          actionButton =
+            '<button data-action="call" data-id="' +
+            guest.id +
+            '" class="flex flex-col items-center justify-center bg-[#082752] text-white w-28 h-full min-h-[120px] hover:bg-[#0a3060] transition-colors rounded-l-none rounded-r-2xl">' +
+            '  <svg class="w-7 h-7 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
+            '    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.11 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.12.81.37 1.6.72 2.34a2 2 0 0 1-.45 2.18L8.09 9.91a16 16 0 0 0 6 6l1.67-1.24a2 2 0 0 1 2.18-.45 11.36 11.36 0 0 0 2.34.72A2 2 0 0 1 22 16.92Z"></path>' +
+            '  </svg>' +
+            '  <span class="text-sm font-medium">呼び出し</span>' +
+            '</button>';
+        } else if (guest.status === 'CALLING') {
+          actionButton =
+            '<button data-action="guide" data-id="' +
+            guest.id +
+            '" class="flex flex-col items-center justify-center bg-[#22C55E] text-white w-28 h-full min-h-[120px] hover:bg-[#16A34A] transition-colors rounded-l-none rounded-r-2xl">' +
+            '  <svg class="w-7 h-7 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
+            '    <path d="M5 12h14"></path>' +
+            '    <path d="m13 18 6-6-6-6"></path>' +
+            '  </svg>' +
+            '  <span class="text-sm font-medium">案内する</span>' +
+            '</button>';
+        } else if (guest.status === 'GUIDING') {
+          actionButton =
+            '<button data-action="complete" data-id="' +
+            guest.id +
+            '" class="flex flex-col items-center justify-center bg-[#FD780F] text-white w-28 h-full min-h-[120px] hover:bg-[#e56d0d] transition-colors rounded-l-none rounded-r-2xl">' +
+            '  <svg class="w-7 h-7 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
+            '    <path d="M19 12H9"></path>' +
+            '    <path d="m12 15-3-3 3-3"></path>' +
+            '  </svg>' +
+            '  <span class="text-sm font-medium">案内完了</span>' +
+            '</button>';
+        }
+
+        let timerRow = '';
+        if (guest.status === 'CALLING' && guest.calledAt) {
+          timerRow =
+            '<div class="flex items-center gap-1 mt-3">' +
+            '  <span class="inline-flex items-center gap-1 px-3 py-1.5 bg-white rounded-full text-xs text-[#FD780F] border border-orange-200">' +
+            '    <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
+            '      <circle cx="12" cy="12" r="10"></circle>' +
+            '      <path d="M12 6v6l4 2"></path>' +
+            '    </svg>' +
+            '    呼び出しから <span data-elapsed-id="' +
+            guest.id +
+            '">' +
+            formatElapsedTime(guest.calledAt) +
+            '</span>' +
+            '  </span>' +
+            '</div>';
+        } else if (guest.status === 'GUIDING' && guest.guidedAt) {
+          timerRow =
+            '<div class="flex items-center gap-1 mt-3">' +
+            '  <span class="inline-flex items-center gap-1 px-3 py-1.5 bg-white rounded-full text-xs text-[#22C55E] border border-green-200">' +
+            '    <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
+            '      <circle cx="12" cy="12" r="10"></circle>' +
+            '      <path d="M12 6v6l4 2"></path>' +
+            '    </svg>' +
+            '    案内から <span data-elapsed-id="' +
+            guest.id +
+            '">' +
+            formatElapsedTime(guest.guidedAt) +
+            '</span>' +
+            '  </span>' +
+            '</div>';
+        }
+
+        const menuItems = []; // メニューの中身自体はロジックを維持しつつイベントで処理
+        // WAITING
+        if (guest.status === 'WAITING') {
+          menuItems.push({
+            icon: 'phone',
+            label: '電話をかける',
+            color: 'text-[#FD780F]',
+            iconColor: 'text-[#FD780F]',
+            action: 'phone',
+          });
+          menuItems.push({
+            icon: 'pause',
+            label: '保留にする',
+            color: 'text-[#082752]',
+            iconColor: 'text-[#082752]',
+            action: 'hold',
+          });
+          menuItems.push({
+            icon: 'x',
+            label: 'キャンセル',
+            color: 'text-[#FD780F]',
+            iconColor: 'text-[#FD780F]',
+            action: 'cancel',
+          });
+        }
+        if (guest.status === 'CALLING') {
+          menuItems.push({
+            icon: 'phone',
+            label: '電話をかける',
+            color: 'text-[#FD780F]',
+            iconColor: 'text-[#FD780F]',
+            action: 'phone',
+          });
+          menuItems.push({
+            icon: 'pause',
+            label: '保留にする',
+            color: 'text-[#082752]',
+            iconColor: 'text-[#082752]',
+            action: 'hold',
+          });
+          menuItems.push({
+            icon: 'timer',
+            label: 'タイマーを延長する',
+            color: 'text-[#FD780F]',
+            iconColor: 'text-[#FD780F]',
+            action: 'extend',
+          });
+          menuItems.push({
+            icon: 'x',
+            label: 'キャンセル',
+            color: 'text-[#FD780F]',
+            iconColor: 'text-[#FD780F]',
+            action: 'cancel',
+          });
+        }
+        if (guest.status === 'GUIDING') {
+          menuItems.push({
+            icon: 'phone',
+            label: '電話をかける',
+            color: 'text-[#FD780F]',
+            iconColor: 'text-[#FD780F]',
+            action: 'phone',
+          });
+          menuItems.push({
+            icon: 'x',
+            label: 'キャンセル',
+            color: 'text-[#FD780F]',
+            iconColor: 'text-[#FD780F]',
+            action: 'cancel',
+          });
+        }
+
+        const menuHtml =
+          '<div class="absolute top-14 left-8 z-[110] bg-white rounded-2xl shadow-2xl border border-gray-100 py-2 min-w-[200px] hidden" data-menu="' +
+          guest.id +
+          '">' +
+          menuItems
+            .map(function (item) {
+              let iconSvg = '';
+              if (item.icon === 'phone') {
+                iconSvg =
+                  '<svg class="w-5 h-5 ' +
+                  item.iconColor +
+                  '" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
+                  '  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.11 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.12.81.37 1.6.72 2.34a2 2 0 0 1-.45 2.18L8.09 9.91a16 16 0 0 0 6 6l1.67-1.24a2 2 0 0 1 2.18-.45 11.36 11.36 0 0 0 2.34.72A2 2 0 0 1 22 16.92Z"></path>' +
+                  '</svg>';
+              } else if (item.icon === 'pause') {
+                iconSvg =
+                  '<svg class="w-5 h-5 ' +
+                  item.iconColor +
+                  '" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
+                  '  <rect x="6" y="4" width="4" height="16"></rect>' +
+                  '  <rect x="14" y="4" width="4" height="16"></rect>' +
+                  '</svg>';
+              } else if (item.icon === 'timer') {
+                iconSvg =
+                  '<svg class="w-5 h-5 ' +
+                  item.iconColor +
+                  '" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
+                  '  <path d="M10 2h4"></path>' +
+                  '  <path d="M12 14v-4"></path>' +
+                  '  <path d="M4 13a8 8 0 1 0 8-8"></path>' +
+                  '</svg>';
+              } else if (item.icon === 'x') {
+                iconSvg =
+                  '<svg class="w-5 h-5 ' +
+                  item.iconColor +
+                  '" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
+                  '  <path d="M18 6 6 18"></path>' +
+                  '  <path d="m6 6 12 12"></path>' +
+                  '</svg>';
+              }
+              return (
+                '<button class="w-full flex items-center gap-3 px-4 py-3.5 hover:bg-gray-50 transition-colors" data-menu-action="' +
+                item.action +
+                '" data-id="' +
+                guest.id +
+                '">' +
+                iconSvg +
+                '<span class="text-sm font-medium ' +
+                item.color +
+                '">' +
+                item.label +
+                '</span>' +
+                '</button>'
+              );
+            })
+            .join('') +
+          '</div>';
+
+        return (
+          '<div class="relative rounded-2xl shadow-lg overflow-visible ' +
+          bgClass +
+          '" data-guest-card="' +
+          guest.id +
+          '">' +
+          '  <div class="flex">' +
+          '    <div class="flex flex-col justify-center gap-1 px-3 py-4">' +
+          '      <div class="w-1.5 h-1.5 rounded-full bg-gray-300"></div>' +
+          '      <div class="w-1.5 h-1.5 rounded-full bg-gray-300"></div>' +
+          '      <div class="w-1.5 h-1.5 rounded-full bg-gray-300"></div>' +
+          '    </div>' +
+          '    <div class="flex-1 py-5 pr-2">' +
+          '      <div class="flex items-center gap-3 mb-3">' +
+          '        <span class="text-3xl font-bold text-[#082752]">No.' +
+          guest.number +
+          '</span>' +
+          statusBadge +
+          '        <div class="relative ml-auto">' +
+          '          <button class="p-2 rounded-full transition-colors hover:bg-gray-100" data-menu-toggle="' +
+          guest.id +
+          '">' +
+          '            <svg class="w-5 h-5 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
+          '              <circle cx="12" cy="5" r="1"></circle>' +
+          '              <circle cx="12" cy="12" r="1"></circle>' +
+          '              <circle cx="12" cy="19" r="1"></circle>' +
+          '            </svg>' +
+          '          </button>' +
+          '        </div>' +
+          '      </div>' +
+          '      <div class="flex items-center gap-2 text-sm text-gray-600">' +
+          '        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
+          '          <path d="M5 13c0 3.866 3.134 7 7 7s7-3.134 7-7"></path>' +
+          '          <path d="M9 11l3 3 5-5"></path>' +
+          '        </svg>' +
+          '        <span>' +
+          guest.partySize +
+          '名</span>' +
+          '        <span class="text-gray-300">|</span>' +
+          '        <span>' +
+          getSeatTypeLabel(guest.seatType) +
+          '</span>' +
+          '      </div>' +
+          timerRow +
+          '    </div>' +
+          '    <div class="flex-shrink-0">' +
+          actionButton +
+          '    </div>' +
+          '  </div>' +
+          '  <div class="fixed inset-0 z-[100] hidden" data-menu-backdrop="' +
+          guest.id +
+          '"></div>' +
+          menuHtml +
+          '</div>'
+        );
+      }
+
+      function renderHoldSection(holdGuests, holdCount) {
+        if (holdCount === 0) return '';
+        return (
+          '<div class="px-4 py-4">' +
+          '  <div class="flex items-center gap-3 mb-4">' +
+          '    <span class="text-sm text-gray-500 whitespace-nowrap">保留中：' +
+          holdCount +
+          '名</span>' +
+          '    <div class="flex-1 h-px bg-gray-200"></div>' +
+          '  </div>' +
+          '  <div class="space-y-3">' +
+          holdGuests
+            .map(function (guest) {
+              return (
+                '<div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">' +
+                '  <div class="flex items-center justify-between gap-4">' +
+                '    <div class="flex-1">' +
+                '      <div class="flex items-center gap-2 mb-1">' +
+                '        <span class="text-lg font-bold text-[#082752]">No.' +
+                guest.number +
+                '</span>' +
+                '        <span class="px-2 py-0.5 text-xs font-medium rounded bg-[#FD780F] text-white">保留</span>' +
+                '      </div>' +
+                '      <p class="text-sm text-gray-500">' +
+                guest.partySize +
+                '名 / ' +
+                (guest.seatType === 'TABLE'
+                  ? 'テーブル'
+                  : guest.seatType === 'COUNTER'
+                  ? 'カウンター'
+                  : 'どちらでも') +
+                '</p>' +
+                '    </div>' +
+                '    <div class="flex items-center gap-2">' +
+                '      <button data-hold-cancel="' +
+                guest.id +
+                '" class="px-4 py-2 text-sm font-medium text-[#FD780F] hover:bg-orange-50 rounded-lg transition-colors">キャンセル</button>' +
+                '      <button data-hold-back="' +
+                guest.id +
+                '" class="px-4 py-2 text-sm font-medium border border-gray-300 rounded-full hover:bg-gray-50 transition-colors text-[#082752]">待機に戻す</button>' +
+                '    </div>' +
+                '  </div>' +
+                '</div>'
+              );
+            })
+            .join('') +
+          '  </div>' +
+          '</div>'
+        );
+      }
+
+      function renderSidebar(derived) {
+        if (!state.sidebarOpen) return '';
+        return (
+          '<div>' +
+          '  <div class="fixed inset-0 z-40 bg-black/50" id="sidebar-backdrop"></div>' +
+          '  <div class="fixed left-0 top-0 bottom-0 z-50 w-80 bg-white shadow-2xl flex flex-col animate-in slide-in-from-left" id="sidebar-panel">' +
+          '    <div class="p-6 border-b border-gray-100">' +
+          '      <div class="flex items-center justify-between">' +
+          '        <h1 class="text-xl font-bold tracking-tight">' +
+          '          <span class="text-[#FD780F]">E</span>' +
+          '          <span class="text-[#082752]">TABLE</span>' +
+          '        </h1>' +
+          '        <button id="sidebar-close" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors">' +
+          '          <svg class="w-5 h-5 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
+          '            <path d="M18 6 6 18"></path>' +
+          '            <path d="m6 6 12 12"></path>' +
+          '          </svg>' +
+          '        </button>' +
+          '      </div>' +
+          '    </div>' +
+          '    <div class="flex-1 overflow-y-auto px-6 py-4">' +
+          '      <div class="mb-6">' +
+          '        <p class="text-xs text-gray-400 tracking-widest mb-3">OPERATING MODE</p>' +
+          '        <div class="space-y-2">' +
+          '          <button id="mode-normal" class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl transition-colors ' +
+          (!state.isReceptionPaused
+            ? 'bg-[#FFF7ED] border-2 border-[#FD780F] text-[#FD780F]'
+            : 'bg-gray-50 text-gray-600 hover:bg-gray-100') +
+          '">' +
+          '            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
+          '              <polygon points="5 3 19 12 5 21 5 3"></polygon>' +
+          '            </svg>' +
+          '            <span class="font-medium">通常営業</span>' +
+          '          </button>' +
+          '          <button id="mode-paused" class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl transition-colors ' +
+          (state.isReceptionPaused
+            ? 'bg-gray-100 border-2 border-gray-400 text-gray-700'
+            : 'bg-gray-50 text-gray-600 hover:bg-gray-100') +
+          '">' +
+          '            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
+          '              <rect x="6" y="4" width="4" height="16"></rect>' +
+          '              <rect x="14" y="4" width="4" height="16"></rect>' +
+          '            </svg>' +
+          '            <span class="font-medium">受付一時停止</span>' +
+          '          </button>' +
+          '        </div>' +
+          '      </div>' +
+          '      <div class="mb-6">' +
+          '        <p class="text-xs text-gray-400 tracking-widest mb-3">ANALYSIS & REPORTS</p>' +
+          '        <div class="space-y-2">' +
+          '          <button id="nav-analytics" class="w-full flex items-center gap-3 px-4 py-3.5 bg-[#082752] text-white rounded-xl hover:bg-[#0a3060] transition-colors">' +
+          '            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
+          '              <path d="M3 3v18h18"></path>' +
+          '              <path d="M7 13l3-3 4 4 5-5"></path>' +
+          '            </svg>' +
+          '            <span class="font-medium">分析・ダッシュボード</span>' +
+          '          </button>' +
+          '          <button id="nav-reviews" class="w-full flex items-center gap-3 px-4 py-3.5 bg-white border-2 border-[#082752] text-[#082752] rounded-xl hover:bg-gray-50 transition-colors">' +
+          '            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
+          '              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>' +
+          '            </svg>' +
+          '            <span class="font-medium">レビュー分析</span>' +
+          '          </button>' +
+          '        </div>' +
+          '      </div>' +
+          '      <div class="mb-6">' +
+          '        <p class="text-xs text-gray-400 tracking-widest mb-3">MENU</p>' +
+          '        <button id="nav-settings" class="w-full flex items-center gap-3 px-4 py-3.5 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">' +
+          '          <svg class="w-5 h-5 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
+          '            <circle cx="12" cy="12" r="3"></circle>' +
+          '            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l0 0a2 2 0 1 1-2.83 2.83l0 0A1.65 1.65 0 0 0 15 19.4a1.65 1.65 0 0 0-1 .6 1.65 1.65 0 0 0-.33 1.82l0 0a2 2 0 1 1-3.32 0l0 0A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82-.33l0 0a2 2 0 1 1-2.83-2.83l0 0A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-.6-1 1.65 1.65 0 0 0-1.82-.33l0 0a2 2 0 1 1 0-3.32l0 0A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.6-1 1.65 1.65 0 0 0-1.82-.33l0 0a2 2 0 1 1 2.83-2.83l0 0A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-.6 1.65 1.65 0 0 0 .33-1.82l0 0a2 2 0 1 1 3.32 0l0 0A1.65 1.65 0 0 0 15 4.6a1.65 1.65 0 0 0 1-.6l0 0a2 2 0 1 1 2.83 2.83l0 0A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 .6 1 1.65 1.65 0 0 0 0 5Z"></path>' +
+          '          </svg>' +
+          '          <span class="font-medium text-[#082752]">詳細設定</span>' +
+          '        </button>' +
+          '      </div>' +
+          '      <div class="mb-6">' +
+          '        <p class="text-xs text-gray-400 tracking-widest mb-3">FINISH DAY</p>' +
+          (state.showEndConfirm
+            ? '<div class="bg-[#DC2626] rounded-xl p-4">' +
+              '  <p class="text-white text-sm text-center mb-4">営業を終了し集計画面へ進みます。よろしいですか？</p>' +
+              '  <div class="flex gap-2">' +
+              '    <button id="finish-day-yes" class="flex-1 py-3 bg-white text-[#DC2626] rounded-xl font-medium hover:bg-gray-100 transition-colors">はい</button>' +
+              '    <button id="finish-day-cancel" class="flex-1 py-3 bg-white/20 text-white rounded-xl font-medium hover:bg-white/30 transition-colors">キャンセル</button>' +
+              '  </div>' +
+              '</div>'
+            : '<button id="finish-day" class="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-[#FEE2E2] text-[#DC2626] rounded-xl hover:bg-[#FECACA] transition-colors">' +
+              '  <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
+              '    <path d="M18 6 6 18"></path>' +
+              '    <path d="m6 6 12 12"></path>' +
+              '  </svg>' +
+              '  <span class="font-medium">本日の営業を終了</span>' +
+              '</button>') +
+          '      </div>' +
+          '      <div class="mb-6">' +
+          '        <p class="text-xs text-gray-400 tracking-widest mb-3">WAIT TIME OFFSET</p>' +
+          '        <div class="bg-gray-50 rounded-xl p-4">' +
+          '          <div class="flex items-baseline justify-center gap-2 mb-4">' +
+          '            <span class="text-5xl font-bold text-[#082752]">' +
+          state.waitTimeOffset +
+          '</span>' +
+          '            <span class="text-sm text-gray-400 tracking-widest">MINUTES</span>' +
+          '          </div>' +
+          '          <div class="flex gap-2">' +
+          '            <button id="offset-plus-10" class="flex-1 py-3 bg-white border border-gray-200 rounded-xl font-medium text-[#082752] hover:bg-gray-100 transition-colors">+10</button>' +
+          '            <button id="offset-plus-20" class="flex-1 py-3 bg-white border border-gray-200 rounded-xl font-medium text-[#082752] hover:bg-gray-100 transition-colors">+20</button>' +
+          '            <button id="offset-reset" class="flex-1 py-3 bg-gray-200 rounded-xl font-medium text-gray-500 hover:bg-gray-300 transition-colors flex items-center justify-center">' +
+          '              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
+          '                <polyline points="1 4 1 10 7 10"></polyline>' +
+          '                <path d="M3.51 15a9 9 0 1 0 .49-5"></path>' +
+          '              </svg>' +
+          '            </button>' +
+          '          </div>' +
+          '        </div>' +
+          '      </div>' +
+          '    </div>' +
+          '    <div class="p-6 border-t border-gray-100">' +
+          '      <button id="logout" class="w-full flex items-center justify-center gap-2 px-4 py-4 bg-gray-100 text-gray-400 rounded-xl hover:bg-gray-200 transition-colors">' +
+          '        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
+          '          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>' +
+          '          <polyline points="16 17 21 12 16 7"></polyline>' +
+          '          <line x1="21" y1="12" x2="9" y2="12"></line>' +
+          '        </svg>' +
+          '        <span class="font-medium tracking-widest">LOGOUT</span>' +
+          '      </button>' +
+          '    </div>' +
+          '  </div>' +
+          '</div>'
+        );
+      }
+
+      function renderNotificationModal(derived) {
+        if (!state.callModalOpen || !state.selectedGuestIdForCall) return '';
+        const guest = state.guests.find((g) => g.id === state.selectedGuestIdForCall);
+        if (!guest) return '';
+
+        return (
+          '<div class="fixed inset-0 z-50 flex items-center justify-center p-4" id="notify-modal-root">' +
+          '  <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" id="notify-backdrop"></div>' +
+          '  <div class="relative w-full max-w-sm bg-white rounded-3xl p-6 shadow-2xl">' +
+          '    <button id="notify-close" class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition-colors">' +
+          '      <svg class="w-5 h-5 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
+          '        <path d="M18 6 6 18"></path>' +
+          '        <path d="m6 6 12 12"></path>' +
+          '      </svg>' +
+          '    </button>' +
+          '    <h2 class="text-xl font-bold text-[#082752] mb-8">通知手段の選択</h2>' +
+          '    <div class="text-center mb-8">' +
+          '      <p class="text-sm text-gray-400 mb-2">呼び出し対象</p>' +
+          '      <p class="text-5xl font-bold text-[#FD780F]">No.' +
+          guest.number +
+          '</p>' +
+          '    </div>' +
+          '    <div class="flex justify-center gap-6 mb-8">' +
+          '      <button id="notify-line" class="flex flex-col items-center gap-2">' +
+          '        <div class="w-16 h-16 rounded-2xl flex items-center justify-center border-2 border-gray-200 bg-gray-50 hover:border-gray-300 transition-all">' +
+          '          <svg class="w-8 h-8 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
+          '            <circle cx="12" cy="12" r="10"></circle>' +
+          '            <path d="M8 12h8"></path>' +
+          '          </svg>' +
+          '        </div>' +
+          '        <span class="text-sm font-bold text-gray-500">LINE</span>' +
+          '      </button>' +
+          '      <button id="notify-email" class="flex flex-col items-center gap-2">' +
+          '        <div class="w-16 h-16 rounded-2xl flex items-center justify-center border-2 border-gray-200 bg-gray-50 hover:border-gray-300 transition-all">' +
+          '          <svg class="w-8 h-8 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
+          '            <rect x="3" y="5" width="18" height="14" rx="2"></rect>' +
+          '            <polyline points="3 7 12 13 21 7"></polyline>' +
+          '          </svg>' +
+          '        </div>' +
+          '        <span class="text-sm font-bold text-gray-500">メール</span>' +
+          '      </button>' +
+          '    </div>' +
+          '    <div id="notify-preview" class="hidden mb-6">' +
+          '      <p class="text-xs text-gray-400 mb-2">送信内容プレビュー</p>' +
+          '      <div class="p-4 bg-gray-100 rounded-xl text-sm text-gray-700 leading-relaxed" id="notify-preview-text"></div>' +
+          '    </div>' +
+          '    <button id="notify-send" disabled class="w-full py-4 rounded-xl text-white font-medium flex items-center justify-center gap-2 bg-gray-300 cursor-not-allowed transition-colors">' +
+          '      <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
+          '        <path d="m22 2-7 20-4-9-9-4 20-7z"></path>' +
+          '      </svg>' +
+          '      <span>通知を送信して呼び出す</span>' +
+          '    </button>' +
+          '  </div>' +
+          '</div>'
+        );
+      }
+
+      function renderDashboard() {
+        const derived = computeDerived();
+        const filterTabs = [
+          { key: 'all', label: 'すべて' },
+          { key: '1-2', label: '1〜2名' },
+          { key: 'table', label: 'テーブル' },
+          { key: 'counter', label: 'カウンター' },
+        ];
+        const hasWaitingGuests = derived.filteredGuests.some((g) => g.status === 'WAITING');
+
+        return (
+          '<div class="min-h-screen bg-background flex flex-col">' +
+          '  <header class="bg-[#FD780F] text-white px-4 pt-4 pb-6">' +
+          '    <div class="flex items-center justify-between mb-4">' +
+          '      <button id="menu-button" class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">' +
+          '        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
+          '          <line x1="3" y1="6" x2="21" y2="6"></line>' +
+          '          <line x1="3" y1="12" x2="21" y2="12"></line>' +
+          '          <line x1="3" y1="18" x2="21" y2="18"></line>' +
+          '        </svg>' +
+          '      </button>' +
+          '      <h1 class="text-xl font-bold tracking-tight">ETABLE</h1>' +
+          '      <button id="history-button" class="px-4 py-2 bg-white/20 rounded-full text-sm font-medium">履歴</button>' +
+          '    </div>' +
+          '    <div class="flex items-end justify-between">' +
+          '      <div>' +
+          '        <div class="flex items-baseline gap-1">' +
+          '          <span class="text-5xl font-bold">' +
+          derived.waitingCount +
+          '</span>' +
+          '          <span class="text-lg">組待ち</span>' +
+          '        </div>' +
+          '        <p class="text-sm opacity-90 mt-1">予想待ち時間：約 <span class="font-semibold">' +
+          derived.estimatedWaitTime +
+          '</span> 分</p>' +
+          '      </div>' +
+          '      <div class="flex flex-col gap-2">' +
+          '        <div class="px-3 py-1.5 bg-white/30 backdrop-blur-sm rounded-full text-sm flex items-center gap-2">' +
+          '          <span>呼び出し中</span>' +
+          '          <span class="font-bold">' +
+          derived.callingCount +
+          '</span>' +
+          '        </div>' +
+          (derived.guidingCount > 0
+            ? '<div class="px-3 py-1.5 bg-white/30 backdrop-blur-sm rounded-full text-sm flex items-center gap-2">' +
+              '  <span>案内中</span>' +
+              '  <span class="font-bold">' +
+              derived.guidingCount +
+              '</span>' +
+              '</div>'
+            : '') +
+          '      </div>' +
+          '    </div>' +
+          '  </header>' +
+          '  <div class="bg-white border-b border-gray-100">' +
+          '    <div class="flex">' +
+          filterTabs
+            .map(function (tab) {
+              const isActive = state.filterTab === tab.key;
+              return (
+                '<button data-filter="' +
+                tab.key +
+                '" class="flex-1 py-3 text-sm font-medium transition-colors relative ' +
+                (isActive ? 'text-[#FD780F]' : 'text-gray-500 hover:text-gray-700') +
+                '">' +
+                tab.label +
+                (isActive
+                  ? '<div class="absolute bottom-0 left-1/4 right-1/4 h-0.5 bg-[#FD780F] rounded-full"></div>'
+                  : '') +
+                '</button>'
+              );
+            })
+            .join('') +
+          '    </div>' +
+          '  </div>' +
+          '  <div class="flex-1 px-4 py-4 space-y-4 overflow-auto" id="guest-list">' +
+          derived.filteredGuests.map(renderGuestCard).join('') +
+          '  </div>' +
+          renderHoldSection(derived.holdGuests, derived.holdCount) +
+          (hasWaitingGuests
+            ? '<div class="fixed bottom-8 right-6 z-50">' +
+              '  <button id="call-next" class="flex flex-col items-center">' +
+              '    <div class="w-16 h-16 bg-[#FD780F] rounded-full flex items-center justify-center shadow-lg shadow-orange-300 mb-2">' +
+              '      <svg class="w-7 h-7 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
+              '        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.11 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.12.81.37 1.6.72 2.34a2 2 0 0 1-.45 2.18L8.09 9.91a16 16 0 0 0 6 6l1.67-1.24a2 2 0 0 1 2.18-.45 11.36 11.36 0 0 0 2.34.72A2 2 0 0 1 22 16.92Z"></path>' +
+              '      </svg>' +
+              '    </div>' +
+              '    <span class="px-3 py-1.5 bg-[#082752] text-white text-xs rounded-full font-medium">次を呼び出す</span>' +
+              '  </button>' +
+              '</div>'
+            : '') +
+          renderSidebar(derived) +
+          renderNotificationModal(derived) +
+          '</div>'
+        );
+      }
+
+      function renderPlaceholderScreen(title) {
+        return (
+          '<div class="min-h-screen bg-white flex flex-col">' +
+          '  <div class="px-6 pt-8 flex items-center justify-between">' +
+          '    <h1 class="text-2xl font-bold tracking-tight">' +
+          '      <span class="text-[#FD780F]">E</span>' +
+          '      <span class="text-[#082752]">TABLE</span>' +
+          '    </h1>' +
+          '    <button id="back-dashboard" class="px-4 py-2 bg-[#082752] text-white rounded-full text-sm font-medium">受付に戻る</button>' +
+          '  </div>' +
+          '  <div class="flex-1 flex flex-col items-center justify-center px-6 text-center">' +
+          '    <h2 class="text-2xl font-bold text-[#082752] mb-2">' +
+          title +
+          '</h2>' +
+          '    <p class="text-gray-400 text-sm">この画面の詳細レイアウトはReact版と同様に拡張可能です。</p>' +
+          '  </div>' +
+          '</div>'
+        );
+      }
+
+      function renderSummaryScreen() {
+        return renderPlaceholderScreen('本日の営業サマリー');
+      }
+
+      function renderHistoryScreen() {
+        return renderPlaceholderScreen('履歴');
+      }
+
+      function renderAnalyticsScreen() {
+        return renderPlaceholderScreen('分析・ダッシュボード');
+      }
+
+      function renderReviewsScreen() {
+        return renderPlaceholderScreen('レビュー分析');
+      }
+
+      function renderSettingsScreen() {
+        return renderPlaceholderScreen('詳細設定');
+      }
+
+      function renderApp() {
+        switch (state.currentScreen) {
+          case 'login':
+            return renderLogin();
+          case 'closed':
+            return renderClosedScreen();
+          case 'dashboard':
+            return renderDashboard();
+          case 'settings':
+            return renderSettingsScreen();
+          case 'analytics':
+            return renderAnalyticsScreen();
+          case 'reviews':
+            return renderReviewsScreen();
+          case 'history':
+            return renderHistoryScreen();
+          case 'summary':
+            return renderSummaryScreen();
+          default:
+            return renderLogin();
+        }
+      }
+
+      function attachEvents() {
+        const root = document.getElementById('app-root');
+        if (!root) return;
+
+        if (state.currentScreen === 'login') {
+          const emailInput = document.getElementById('login-email');
+          const passwordInput = document.getElementById('login-password');
+          const loginButton = document.getElementById('login-button');
+          if (emailInput) {
+            emailInput.addEventListener('input', (e) => {
+              state.email = e.target.value;
+            });
+          }
+          if (passwordInput) {
+            passwordInput.addEventListener('input', (e) => {
+              state.password = e.target.value;
+            });
+          }
+          if (loginButton) {
+            loginButton.addEventListener('click', () => {
+              setCurrentScreen('closed');
+            });
+          }
+          return;
+        }
+
+        if (state.currentScreen === 'closed') {
+          const maxSlide = 280;
+          const container = document.getElementById('closed-slider-container');
+          const slider = document.getElementById('closed-slider');
+          if (!container || !slider) return;
+
+          const handleStart = () => {
+            state.closedIsDragging = true;
+          };
+          const handleMove = (clientX) => {
+            if (!state.closedIsDragging) return;
+            const rect = container.getBoundingClientRect();
+            const newX = Math.max(0, Math.min(clientX - rect.left - 30, maxSlide));
+            state.closedSliderX = newX;
+            slider.style.transform = 'translateX(' + newX + 'px)';
+          };
+          const handleEnd = () => {
+            if (state.closedSliderX > maxSlide * 0.8) {
+              state.closedSliderX = 0;
+              state.closedIsDragging = false;
+              setCurrentScreen('dashboard');
+            } else {
+              state.closedSliderX = 0;
+              state.closedIsDragging = false;
+              slider.style.transform = 'translateX(0px)';
+            }
+          };
+
+          slider.addEventListener('mousedown', (e) => handleStart(e.clientX));
+          slider.addEventListener('touchstart', (e) => handleStart(e.touches[0].clientX));
+
+          const onMouseMove = (e) => handleMove(e.clientX);
+          const onTouchMove = (e) => handleMove(e.touches[0].clientX);
+          const onMouseUp = () => handleEnd();
+          const onTouchEnd = () => handleEnd();
+
+          window.addEventListener('mousemove', onMouseMove);
+          window.addEventListener('mouseup', onMouseUp);
+          window.addEventListener('touchmove', onTouchMove);
+          window.addEventListener('touchend', onTouchEnd);
+          return;
+        }
+
+        if (state.currentScreen === 'dashboard') {
+          const derived = computeDerived();
+
+          const menuButton = document.getElementById('menu-button');
+          if (menuButton) {
+            menuButton.addEventListener('click', () => {
+              setSidebarOpen(true);
+            });
+          }
+          const historyButton = document.getElementById('history-button');
+          if (historyButton) {
+            historyButton.addEventListener('click', () => {
+              setCurrentScreen('history');
+            });
+          }
+
+          document.querySelectorAll('[data-filter]').forEach((el) => {
+            el.addEventListener('click', () => {
+              const tab = el.getAttribute('data-filter');
+              setFilterTab(tab);
+            });
+          });
+
+          const callNextButton = document.getElementById('call-next');
+          if (callNextButton) {
+            callNextButton.addEventListener('click', () => {
+              const nextGuest = derived.filteredGuests.find((g) => g.status === 'WAITING');
+              if (nextGuest) {
+                state.selectedGuestIdForCall = nextGuest.id;
+                state.callModalOpen = true;
+                render();
+              }
+            });
+          }
+
+          document.querySelectorAll('[data-action="call"]').forEach((el) => {
+            el.addEventListener('click', () => {
+              const id = el.getAttribute('data-id');
+              state.selectedGuestIdForCall = id;
+              state.callModalOpen = true;
+              render();
+            });
+          });
+          document.querySelectorAll('[data-action="guide"]').forEach((el) => {
+            el.addEventListener('click', () => {
+              const id = el.getAttribute('data-id');
+              updateGuestStatus(id, 'GUIDING');
+            });
+          });
+          document.querySelectorAll('[data-action="complete"]').forEach((el) => {
+            el.addEventListener('click', () => {
+              const id = el.getAttribute('data-id');
+              updateGuestStatus(id, 'COMPLETED');
+            });
+          });
+
+          document.querySelectorAll('[data-hold-cancel]').forEach((el) => {
+            el.addEventListener('click', () => {
+              const id = el.getAttribute('data-hold-cancel');
+              removeGuest(id);
+            });
+          });
+          document.querySelectorAll('[data-hold-back]').forEach((el) => {
+            el.addEventListener('click', () => {
+              const id = el.getAttribute('data-hold-back');
+              updateGuestStatus(id, 'WAITING');
+            });
+          });
+
+          document.querySelectorAll('[data-menu-toggle]').forEach((el) => {
+            el.addEventListener('click', () => {
+              const id = el.getAttribute('data-menu-toggle');
+              const menu = document.querySelector('[data-menu="' + id + '"]');
+              const backdrop = document.querySelector('[data-menu-backdrop="' + id + '"]');
+              if (!menu || !backdrop) return;
+              const isHidden = menu.classList.contains('hidden');
+              document
+                .querySelectorAll('[data-menu]')
+                .forEach((m) => m.classList.add('hidden'));
+              document
+                .querySelectorAll('[data-menu-backdrop]')
+                .forEach((b) => b.classList.add('hidden'));
+              if (isHidden) {
+                menu.classList.remove('hidden');
+                backdrop.classList.remove('hidden');
+              }
+            });
+          });
+
+          document.querySelectorAll('[data-menu-backdrop]').forEach((el) => {
+            el.addEventListener('click', () => {
+              document
+                .querySelectorAll('[data-menu]')
+                .forEach((m) => m.classList.add('hidden'));
+              document
+                .querySelectorAll('[data-menu-backdrop]')
+                .forEach((b) => b.classList.add('hidden'));
+            });
+          });
+
+          document.querySelectorAll('[data-menu-action]').forEach((el) => {
+            el.addEventListener('click', () => {
+              const id = el.getAttribute('data-id');
+              const action = el.getAttribute('data-menu-action');
+              if (action === 'hold') {
+                updateGuestStatus(id, 'HOLD');
+              } else if (action === 'cancel') {
+                updateGuestStatus(id, 'CANCELLED');
+              }
+            });
+          });
+
+          const historyBtn = document.getElementById('history-button');
+          if (historyBtn) {
+            historyBtn.addEventListener('click', () => {
+              setCurrentScreen('history');
+            });
+          }
+
+          if (state.sidebarOpen) {
+            const sidebarBackdrop = document.getElementById('sidebar-backdrop');
+            const sidebarClose = document.getElementById('sidebar-close');
+            if (sidebarBackdrop) {
+              sidebarBackdrop.addEventListener('click', () => setSidebarOpen(false));
+            }
+            if (sidebarClose) {
+              sidebarClose.addEventListener('click', () => setSidebarOpen(false));
+            }
+
+            const modeNormal = document.getElementById('mode-normal');
+            const modePaused = document.getElementById('mode-paused');
+            if (modeNormal) {
+              modeNormal.addEventListener('click', () => setIsReceptionPaused(false));
+            }
+            if (modePaused) {
+              modePaused.addEventListener('click', () => setIsReceptionPaused(true));
+            }
+
+            const navAnalytics = document.getElementById('nav-analytics');
+            const navReviews = document.getElementById('nav-reviews');
+            const navSettings = document.getElementById('nav-settings');
+            if (navAnalytics) {
+              navAnalytics.addEventListener('click', () => setCurrentScreen('analytics'));
+            }
+            if (navReviews) {
+              navReviews.addEventListener('click', () => setCurrentScreen('reviews'));
+            }
+            if (navSettings) {
+              navSettings.addEventListener('click', () => setCurrentScreen('settings'));
+            }
+
+            const finishDay = document.getElementById('finish-day');
+            const finishDayYes = document.getElementById('finish-day-yes');
+            const finishDayCancel = document.getElementById('finish-day-cancel');
+            if (finishDay) {
+              finishDay.addEventListener('click', () => {
+                state.showEndConfirm = true;
+                render();
+              });
+            }
+            if (finishDayYes) {
+              finishDayYes.addEventListener('click', () => {
+                setCurrentScreen('summary');
+                state.showEndConfirm = false;
+                setSidebarOpen(false);
+              });
+            }
+            if (finishDayCancel) {
+              finishDayCancel.addEventListener('click', () => {
+                state.showEndConfirm = false;
+                render();
+              });
+            }
+
+            const offsetPlus10 = document.getElementById('offset-plus-10');
+            const offsetPlus20 = document.getElementById('offset-plus-20');
+            const offsetReset = document.getElementById('offset-reset');
+            if (offsetPlus10) {
+              offsetPlus10.addEventListener('click', () =>
+                setWaitTimeOffset(state.waitTimeOffset + 10)
+              );
+            }
+            if (offsetPlus20) {
+              offsetPlus20.addEventListener('click', () =>
+                setWaitTimeOffset(state.waitTimeOffset + 20)
+              );
+            }
+            if (offsetReset) {
+              offsetReset.addEventListener('click', () => setWaitTimeOffset(0));
+            }
+
+            const logout = document.getElementById('logout');
+            if (logout) {
+              logout.addEventListener('click', () => {
+                setCurrentScreen('login');
+                setSidebarOpen(false);
+              });
+            }
+          }
+
+          if (state.callModalOpen && state.selectedGuestIdForCall) {
+            const guest = state.guests.find((g) => g.id === state.selectedGuestIdForCall);
+            const modalRoot = document.getElementById('notify-modal-root');
+            if (modalRoot && guest) {
+              let selectedMethod = null;
+              const updatePreview = () => {
+                const preview = document.getElementById('notify-preview');
+                const previewText = document.getElementById('notify-preview-text');
+                const sendBtn = document.getElementById('notify-send');
+                if (!preview || !previewText || !sendBtn) return;
+                if (!selectedMethod) {
+                  preview.classList.add('hidden');
+                  sendBtn.setAttribute('disabled', 'true');
+                  sendBtn.className =
+                    'w-full py-4 rounded-xl text-white font-medium flex items-center justify-center gap-2 bg-gray-300 cursor-not-allowed transition-colors';
+                  previewText.textContent = '';
+                  return;
+                }
+                preview.classList.remove('hidden');
+                sendBtn.removeAttribute('disabled');
+                if (selectedMethod === 'LINE') {
+                  previewText.textContent =
+                    'まもなくご案内です！整理券No.' +
+                    guest.number +
+                    'をご用意ください。[詳細を確認するボタン]';
+                  sendBtn.className =
+                    'w-full py-4 rounded-xl text-white font-medium flex items-center justify-center gap-2 bg-[#22C55E] hover:bg-[#16A34A] transition-colors';
+                } else if (selectedMethod === 'EMAIL') {
+                  const position =
+                    state.guests
+                      .filter((g) => g.status === 'WAITING')
+                      .findIndex((g) => g.id === guest.id) + 1;
+                  previewText.textContent =
+                    '【ETABLE】あと' +
+                    position +
+                    '組でご案内予定です。店頭へお越しください。(No.' +
+                    guest.number +
+                    ')';
+                  sendBtn.className =
+                    'w-full py-4 rounded-xl text-white font-medium flex items-center justify-center gap-2 bg-[#082752] hover:bg-[#0a3060] transition-colors';
+                }
+              };
+
+              const btnLine = document.getElementById('notify-line');
+              const btnEmail = document.getElementById('notify-email');
+              if (btnLine) {
+                btnLine.addEventListener('click', () => {
+                  selectedMethod = 'LINE';
+                  updatePreview();
+                });
+              }
+              if (btnEmail) {
+                btnEmail.addEventListener('click', () => {
+                  selectedMethod = 'EMAIL';
+                  updatePreview();
+                });
+              }
+
+              const backdrop = document.getElementById('notify-backdrop');
+              const close = document.getElementById('notify-close');
+              if (backdrop) {
+                backdrop.addEventListener('click', () => {
+                  state.callModalOpen = false;
+                  state.selectedGuestIdForCall = null;
+                  render();
+                });
+              }
+              if (close) {
+                close.addEventListener('click', () => {
+                  state.callModalOpen = false;
+                  state.selectedGuestIdForCall = null;
+                  render();
+                });
+              }
+
+              const sendBtn = document.getElementById('notify-send');
+              if (sendBtn) {
+                sendBtn.addEventListener('click', () => {
+                  if (!selectedMethod) return;
+                  updateGuestStatus(guest.id, 'CALLING', selectedMethod);
+                  state.callModalOpen = false;
+                  state.selectedGuestIdForCall = null;
+                  render();
+                });
+              }
+            }
+          }
+
+          document.querySelectorAll('[data-elapsed-id]').forEach((el) => {
+            const id = el.getAttribute('data-elapsed-id');
+            const guest = state.guests.find((g) => g.id === id);
+            if (!guest) return;
+            if (guest.status === 'CALLING' && guest.calledAt) {
+              el.textContent = formatElapsedTime(guest.calledAt);
+            }
+            if (guest.status === 'GUIDING' && guest.guidedAt) {
+              el.textContent = formatElapsedTime(guest.guidedAt);
+            }
+          });
+
+          return;
+        }
+
+        const backDashboard = document.getElementById('back-dashboard');
+        if (backDashboard) {
+          backDashboard.addEventListener('click', () => {
+            setCurrentScreen('dashboard');
+          });
+        }
+      }
+
+      function render() {
+        const root = document.getElementById('app-root');
+        if (!root) return;
+        root.innerHTML = renderApp();
+        attachEvents();
+      }
+
+      setInterval(() => {
+        if (state.currentScreen === 'dashboard') {
+          render();
+        }
+      }, 1000);
+
+      window.addEventListener('DOMContentLoaded', () => {
+        render();
+      });
+    </script>
+  </body>
+</html>
+

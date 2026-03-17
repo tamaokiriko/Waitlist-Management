@@ -1293,7 +1293,7 @@
           '      </svg>' +
           '    </button>' +
           '  </header>' +
-          '  <div class="px-4 py-6 pb-28 space-y-6">' +
+          '  <div class="px-4 py-6 pb-32 space-y-6">' +
           // 1. 営業情報セクション
           '    <section class="space-y-4">' +
           '      <h2 class="text-sm font-bold text-[#082752]">営業情報</h2>' +
@@ -1422,6 +1422,12 @@
           '        </div>' +
           '      </div>' +
           '    </section>' +
+          '  </div>' +
+          '  <div class="fixed bottom-0 left-0 right-0 px-4 pb-6 pt-3 bg-white border-t border-gray-100">' +
+          '    <div class="max-w-md mx-auto flex gap-3">' +
+          '      <button id="settings-cancel" class="flex-1 py-3 rounded-2xl border border-gray-200 text-sm font-medium text-[#082752] bg-white">キャンセル</button>' +
+          '      <button id="settings-save" class="flex-1 py-3 rounded-2xl bg-[#082752] text-sm font-medium text-white">保存</button>' +
+          '    </div>' +
           '  </div>' +
           '</div>'
         );
@@ -1824,6 +1830,115 @@
               el.textContent = formatElapsedTime(guest.guidedAt);
             }
           });
+
+          return;
+        }
+
+        if (state.currentScreen === 'settings') {
+          const closeBtn = document.getElementById('settings-close');
+          const cancelBtn = document.getElementById('settings-cancel');
+          const saveBtn = document.getElementById('settings-save');
+
+          const goBackToMain = () => {
+            setCurrentScreen('dashboard');
+          };
+
+          if (closeBtn) {
+            closeBtn.addEventListener('click', goBackToMain);
+          }
+          if (cancelBtn) {
+            cancelBtn.addEventListener('click', goBackToMain);
+          }
+          if (saveBtn) {
+            saveBtn.addEventListener('click', () => {
+              alert('設定を保存しました');
+              goBackToMain();
+            });
+          }
+
+          const settingsRoot = document.querySelector('#app-root > div');
+          if (settingsRoot) {
+            const sections = settingsRoot.querySelectorAll('section');
+
+            // 1. 営業時間 追加・削除
+            const hoursSection = sections[0];
+            if (hoursSection) {
+              const hoursList = hoursSection.querySelector('div.space-y-4');
+              if (hoursList) {
+                const hourCards = hoursList.querySelectorAll('div.bg-white');
+                hourCards.forEach((card) => {
+                  const delBtn = card.querySelector('button');
+                  if (delBtn) {
+                    delBtn.addEventListener('click', () => card.remove());
+                  }
+                });
+                const addHoursBtn = hoursList.querySelector('button.w-full');
+                if (addHoursBtn) {
+                  addHoursBtn.addEventListener('click', () => {
+                    const baseCard = hoursList.querySelector('div.bg-white');
+                    if (!baseCard) return;
+                    const clone = baseCard.cloneNode(true);
+                    hoursList.insertBefore(clone, addHoursBtn);
+                    const delBtn = clone.querySelector('button');
+                    if (delBtn) {
+                      delBtn.addEventListener('click', () => clone.remove());
+                    }
+                  });
+                }
+              }
+            }
+
+            // 2. 定休日 追加・削除
+            const closedSection = sections[1];
+            if (closedSection) {
+              const closedList = closedSection.querySelector('div.space-y-4');
+              if (closedList) {
+                const closedCards = closedList.querySelectorAll('div.bg-white');
+                closedCards.forEach((card) => {
+                  const delBtn = card.querySelector('button');
+                  if (delBtn) {
+                    delBtn.addEventListener('click', () => card.remove());
+                  }
+                });
+                const addClosedBtn = closedList.querySelector('button.w-full');
+                if (addClosedBtn) {
+                  addClosedBtn.addEventListener('click', () => {
+                    const baseCard = closedList.querySelector('div.bg-white');
+                    if (!baseCard) return;
+                    const clone = baseCard.cloneNode(true);
+                    closedList.insertBefore(clone, addClosedBtn);
+                    const delBtn = clone.querySelector('button');
+                    if (delBtn) {
+                      delBtn.addEventListener('click', () => clone.remove());
+                    }
+                  });
+                }
+              }
+            }
+
+            // 3. トグルスイッチ（順番待ち受付 / 本日の受付停止）
+            const toggleSection = sections[2];
+            if (toggleSection) {
+              const toggles = toggleSection.querySelectorAll('div.w-12.h-7');
+              toggles.forEach((wrap) => {
+                wrap.addEventListener('click', () => {
+                  const knob = wrap.querySelector('div.w-5.h-5');
+                  const isOn = wrap.className.includes('bg-[#082752]');
+                  if (isOn) {
+                    wrap.className = 'w-12 h-7 rounded-full bg-gray-300 flex items-center px-1';
+                    if (knob) {
+                      knob.className = 'w-5 h-5 bg-white rounded-full shadow translate-x-0';
+                    }
+                  } else {
+                    wrap.className = 'w-12 h-7 rounded-full bg-[#082752] flex items-center px-1';
+                    if (knob) {
+                      knob.className = 'w-5 h-5 bg-white rounded-full shadow translate-x-5';
+                    }
+                  }
+                });
+              });
+            }
+          }
 
           return;
         }

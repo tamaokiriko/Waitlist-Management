@@ -1281,7 +1281,150 @@
       }
 
       function renderSettingsScreen() {
-        return renderPlaceholderScreen('詳細設定');
+        return (
+          '<div class="min-h-screen bg-white">' +
+          '  <header class="sticky top-0 bg-white border-b border-gray-100 px-4 py-4 flex items-center justify-between z-10">' +
+          '    <div class="w-8"></div>' +
+          '    <h1 class="text-base font-bold text-[#082752]">設定</h1>' +
+          '    <button id="settings-close" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors">' +
+          '      <svg class="w-5 h-5 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
+          '        <path d="M18 6 6 18"></path>' +
+          '        <path d="m6 6 12 12"></path>' +
+          '      </svg>' +
+          '    </button>' +
+          '  </header>' +
+          '  <div class="px-4 py-6 pb-28 space-y-6">' +
+          // 1. 営業情報セクション
+          '    <section class="space-y-4">' +
+          '      <h2 class="text-sm font-bold text-[#082752]">営業情報</h2>' +
+          '      <div class="space-y-4">' +
+          '        <div class="bg-white rounded-[32px] p-5 border border-gray-100 flex items-center justify-between">' +
+          '          <div>' +
+          '            <p class="text-xs text-gray-400 mb-1">月・火・水・木・金</p>' +
+          '            <p class="text-base font-semibold text-[#082752]">10:00〜20:00</p>' +
+          '          </div>' +
+          '          <button class="p-2 rounded-full hover:bg-gray-100 transition-colors">' +
+          '            <svg class="w-4 h-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
+          '              <path d="M3 6h18"></path>' +
+          '              <path d="M3 12h18"></path>' +
+          '              <path d="M3 18h18"></path>' +
+          '            </svg>' +
+          '          </button>' +
+          '        </div>' +
+          '        <div class="bg-white rounded-[32px] p-5 border border-gray-100 flex items-center justify-between">' +
+          '          <div>' +
+          '            <p class="text-xs text-gray-400 mb-1">土・日</p>' +
+          '            <p class="text-base font-semibold text-[#082752]">11:00〜22:00</p>' +
+          '          </div>' +
+          '          <button class="p-2 rounded-full hover:bg-gray-100 transition-colors">' +
+          '            <svg class="w-4 h-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
+          '              <path d="M3 6h18"></path>' +
+          '              <path d="M3 12h18"></path>' +
+          '              <path d="M3 18h18"></path>' +
+          '            </svg>' +
+          '          </button>' +
+          '        </div>' +
+          '        <button class="w-full py-4 border border-dashed border-gray-300 rounded-[32px] text-sm text-gray-500 flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors">' +
+          '          <span class="text-lg">＋</span>' +
+          '          <span>営業時間追加</span>' +
+          '        </button>' +
+          '      </div>' +
+          '    </section>' +
+          // 2. 定休日セクション
+          '    <section class="space-y-4">' +
+          '      <h2 class="text-sm font-semibold text-[#082752]">定休日</h2>' +
+          '      <div class="space-y-4">' +
+          '        <div class="bg-white rounded-[32px] p-5 border border-gray-100 flex items-center justify-between">' +
+          '          <p class="text-base font-semibold text-[#082752]">毎週月</p>' +
+          '          <button class="p-2 rounded-full hover:bg-gray-100 transition-colors">' +
+          '            <svg class="w-4 h-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
+          '              <path d="M3 6h18"></path>' +
+          '              <path d="M3 12h18"></path>' +
+          '              <path d="M3 18h18"></path>' +
+          '            </svg>' +
+          '          </button>' +
+          '        </div>' +
+          '        <div class="bg-white rounded-[32px] p-5 border border-gray-100 flex items-center justify-between">' +
+          '          <p class="text-base font-semibold text-[#082752]">第3水曜日</p>' +
+          '          <button class="p-2 rounded-full hover:bg-gray-100 transition-colors">' +
+          '            <svg class="w-4 h-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
+          '              <path d="M3 6h18"></path>' +
+          '              <path d="M3 12h18"></path>' +
+          '              <path d="M3 18h18"></path>' +
+          '            </svg>' +
+          '          </button>' +
+          '        </div>' +
+          '        <button class="w-full py-4 border border-dashed border-gray-300 rounded-[32px] text-sm text-gray-500 flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors">' +
+          '          <span class="text-lg">＋</span>' +
+          '          <span>定休日を追加</span>' +
+          '        </button>' +
+          '      </div>' +
+          '    </section>' +
+          // 3. 順番待ち受付・例外停止
+          '    <section class="space-y-4">' +
+          '      <h2 class="text-sm font-semibold text-[#082752]">受付設定</h2>' +
+          '      <div class="bg-white rounded-[32px] p-5 border border-gray-100 space-y-4">' +
+          '        <div class="flex items-center justify-between">' +
+          '          <div>' +
+          '            <p class="font-medium text-sm text-[#082752]">順番待ち受付</p>' +
+          '            <p class="text-xs text-gray-500">新規の順番待ち受付を停止します</p>' +
+          '          </div>' +
+          '          <div class="w-12 h-7 rounded-full bg-[#082752] flex items-center px-1">' +
+          '            <div class="w-5 h-5 bg-white rounded-full shadow translate-x-5"></div>' +
+          '          </div>' +
+          '        </div>' +
+          '        <div class="flex items-center justify-between">' +
+          '          <div>' +
+          '            <p class="font-medium text-sm text-[#082752]">本日の受付停止（例外）</p>' +
+          '            <p class="text-xs text-gray-500">OFFにすると、本日の受付を例外的に停止します</p>' +
+          '          </div>' +
+          '          <div class="w-12 h-7 rounded-full bg-gray-300 flex items-center px-1">' +
+          '            <div class="w-5 h-5 bg-white rounded-full shadow translate-x-0"></div>' +
+          '          </div>' +
+          '        </div>' +
+          '      </div>' +
+          '    </section>' +
+          // 4. メッセージ設定
+          '    <section class="space-y-4">' +
+          '      <h2 class="text-sm font-semibold text-[#082752]">メッセージ設定</h2>' +
+          '      <div class="bg-white rounded-[32px] p-5 border border-gray-100 space-y-4">' +
+          '        <div>' +
+          '          <p class="text-xs text-gray-500 mb-2">呼び出しメッセージ</p>' +
+          '          <div class="bg-gray-50 rounded-2xl border border-gray-100 px-4 py-3 text-sm text-gray-700">' +
+          '            番号 {number} のお客様、ご来店をお願いいたします。' +
+          '          </div>' +
+          '        </div>' +
+          '        <div>' +
+          '          <p class="flex items-center gap-2 text-xs text-gray-500 mb-2">' +
+          '            <svg class="w-4 h-4 text-[#FD780F]" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
+          '              <circle cx="12" cy="12" r="10"></circle>' +
+          '              <polyline points="12 6 12 12 16 14"></polyline>' +
+          '            </svg>' +
+          '            プレビュー' +
+          '          </p>' +
+          '          <div class="bg-[#082752] rounded-[32px] px-6 py-5 text-white text-sm leading-relaxed shadow-sm">' +
+          '            <p class="font-medium mb-1">番号 12 のお客様、ご来店をお願いいたします。</p>' +
+          '            <p class="text-xs text-white/70">スタッフまでお声がけください。</p>' +
+          '          </div>' +
+          '        </div>' +
+          '      </div>' +
+          '    </section>' +
+          // 5. 自動ルール設定
+          '    <section class="space-y-4">' +
+          '      <h2 class="text-sm font-semibold text-[#082752]">自動ルール設定</h2>' +
+          '      <div class="bg-white rounded-[32px] p-5 border border-gray-100">' +
+          '        <p class="text-xs text-gray-500 mb-2">自動キャンセルに移行する時間（分）</p>' +
+          '        <div class="flex items-center">' +
+          '          <div class="flex-1 flex items-center bg-gray-50 rounded-xl border border-gray-200 px-4 py-3">' +
+          '            <span class="flex-1 text-sm text-[#082752]">10</span>' +
+          '            <span class="text-xs text-gray-400">分</span>' +
+          '          </div>' +
+          '        </div>' +
+          '      </div>' +
+          '    </section>' +
+          '  </div>' +
+          '</div>'
+        );
       }
 
       function renderApp() {

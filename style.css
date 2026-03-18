@@ -352,14 +352,20 @@ body {
 
 .guest-card {
   background: #fff;
+  box-sizing: border-box; /* include border in fixed height */
+  border: 1px solid #E5E7EB; /* FIX: navy cards also have border */
 }
 
 /* Card background (subtle) */
 .status-waiting.guest-card {
-  background: linear-gradient(to right, rgba(253, 120, 15, 0.12), #fff 70%);
+  /* FIX: no gradient (solid) */
+  background: #FBF1E7;
+  border-color: #EFD8C6;
 }
 .status-guiding.guest-card {
-  background: linear-gradient(to right, rgba(34, 197, 94, 0.12), #fff 70%);
+  /* FIX: no gradient (solid) */
+  background: #EEF8F1;
+  border-color: #CDE8D3;
 }
 
 /* Right action button (same rule across statuses) */
@@ -733,7 +739,8 @@ body {
 
 /* Dashboard list cards: requested small safe tweaks */
 #dashboard-screen .dashboard-card {
-  height: 126px;
+  height: 120px;
+  box-sizing: border-box;
 }
 
 #dashboard-screen .dashboard-card > .flex {
@@ -751,6 +758,58 @@ body {
 }
 
 /* Dashboard cards: left breathing space is applied via Tailwind (pl-6) */
+
+/* Dashboard cards: unify inner vertical padding to prevent overflow */
+#dashboard-screen .card-left-content {
+  padding-top: 14px;
+  padding-bottom: 14px;
+}
+
+/* Dashboard cards: unify right action button size (呼び出し/案内する/案内完了) */
+#dashboard-screen .action-button {
+  /* FIX: match navy "呼び出し" box size */
+  box-sizing: border-box;
+  width: 130px !important;
+  height: 120px !important;
+  min-width: 130px !important;
+  min-height: 120px !important;
+  /* keep left edge square, right edge rounded */
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+  border-top-right-radius: 12px !important;
+  border-bottom-right-radius: 12px !important;
+}
+
+#dashboard-screen .action-button span {
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* Force identical inner visuals so orange/green don't "look" larger */
+#dashboard-screen .action-button svg {
+  width: 20px !important;
+  height: 20px !important;
+  flex: none;
+}
+
+#dashboard-screen .action-button span {
+  font-size: 11px !important;
+  line-height: 1.1;
+  font-weight: 500; /* keep existing look */
+}
+
+/* Right action area is part of card, not separate */
+#dashboard-screen .card-right-action {
+  display: flex;
+  align-items: stretch;
+  justify-content: stretch;
+}
+
+#dashboard-screen .action-button-inner {
+  background: transparent;
+  border: none;
+  padding: 0;
+}
 
 /* (deduped) notify option border reset lives above */
 

@@ -426,7 +426,7 @@ function setClosedRuleBtnActive(btn, active) {
           actionButton =
             '<button data-action="call" data-id="' +
             guest.id +
-            '" class="action-button flex flex-col items-center justify-center text-white w-[130px] h-[120px] rounded-l-none rounded-r-[12px]">' +
+            '" class="action-button-inner flex flex-col items-center justify-center text-white w-full h-full">' +
             '  <svg class="w-[20px] h-[20px] mb-2" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
             '    <path d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384"></path>' +
             '  </svg>' +
@@ -436,55 +436,55 @@ function setClosedRuleBtnActive(btn, active) {
           actionButton =
             '<button data-action="guide" data-id="' +
             guest.id +
-            '" class="action-button flex flex-col items-center justify-center text-white w-28 h-full min-h-[120px] rounded-l-none rounded-r-2xl">' +
-            '  <svg class="w-7 h-7 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
+            '" class="action-button-inner flex flex-col items-center justify-center text-white w-full h-full">' +
+            '  <svg class="w-[20px] h-[20px] mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
             '    <path d="M5 12h14"></path>' +
             '    <path d="m13 18 6-6-6-6"></path>' +
             '  </svg>' +
-            '  <span class="text-sm font-medium">案内する</span>' +
+            '  <span class="text-[11px] font-medium">案内する</span>' +
             '</button>';
         } else if (guest.status === 'GUIDING') {
           actionButton =
             '<button data-action="complete" data-id="' +
             guest.id +
-            '" class="action-button flex flex-col items-center justify-center text-white w-28 h-full min-h-[120px] rounded-l-none rounded-r-2xl">' +
-            '  <svg class="w-7 h-7 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
+            '" class="action-button-inner flex flex-col items-center justify-center text-white w-full h-full">' +
+            '  <svg class="w-[20px] h-[20px] mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
             '    <path d="M19 12H9"></path>' +
             '    <path d="m12 15-3-3 3-3"></path>' +
             '  </svg>' +
-            '  <span class="text-sm font-medium">案内完了</span>' +
+            '  <span class="text-[11px] font-medium">案内完了</span>' +
             '</button>';
         }
 
         let timerRow = '';
         if (guest.status === 'CALLING' && guest.calledAt) {
           timerRow =
-            '<div class="flex items-center gap-1 mt-3">' +
-            '  <span class="time-badge inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs">' +
-            '    <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
+            '<div class="card-timer-row flex items-center mt-1">' +
+            '  <span class="time-badge w-[140px] h-[29px] rounded-full text-[10px] leading-none whitespace-nowrap flex items-center justify-center gap-0.5 px-1.5 py-0">' +
+            '    <svg class="w-2.5 h-2.5 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
             '      <circle cx="12" cy="12" r="10"></circle>' +
             '      <path d="M12 6v6l4 2"></path>' +
             '    </svg>' +
-            '    呼び出しから <span data-elapsed-id="' +
+            '    <span class="leading-none whitespace-nowrap">呼び出しから <span data-elapsed-id="' +
             guest.id +
             '">' +
             formatElapsedTime(guest.calledAt) +
-            '</span>' +
+            '</span></span>' +
             '  </span>' +
             '</div>';
         } else if (guest.status === 'GUIDING' && guest.guidedAt) {
           timerRow =
-            '<div class="flex items-center gap-1 mt-3">' +
-            '  <span class="time-badge inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs">' +
-            '    <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
+            '<div class="card-timer-row flex items-center mt-1">' +
+            '  <span class="time-badge w-[140px] h-[29px] rounded-full text-[10px] leading-none whitespace-nowrap flex items-center justify-center gap-0.5 px-1.5 py-0">' +
+            '    <svg class="w-2.5 h-2.5 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
             '      <circle cx="12" cy="12" r="10"></circle>' +
             '      <path d="M12 6v6l4 2"></path>' +
             '    </svg>' +
-            '    案内から <span data-elapsed-id="' +
+            '    <span class="leading-none whitespace-nowrap">案内から <span data-elapsed-id="' +
             guest.id +
             '">' +
             formatElapsedTime(guest.guidedAt) +
-            '</span>' +
+            '</span></span>' +
             '  </span>' +
             '</div>';
         }
@@ -622,13 +622,12 @@ function setClosedRuleBtnActive(btn, active) {
         return (
           '<div class="guest-card ' +
           statusClass +
-          ' dashboard-card relative rounded-2xl shadow-lg overflow-visible' +
+          ' dashboard-card relative rounded-2xl shadow-lg overflow-hidden flex' +
           '" data-guest-card="' +
           guest.id +
           '">' +
-          '  <div class="flex">' +
-'    <div class="card-left-content flex-1 py-5 pr-2 pl-6">' +
-          '      <div class="flex items-center gap-3 mb-3">' +
+          '    <div class="card-left-content flex-1 pr-2 pl-6">' +
+          '      <div class="card-title-row flex items-center gap-3 mb-2">' +
           '        <span class="text-[24px] font-bold text-[#082752]">No.' +
           guest.number +
           '</span>' +
@@ -645,7 +644,7 @@ function setClosedRuleBtnActive(btn, active) {
           '          </button>' +
           '        </div>' +
           '      </div>' +
-          '      <div class="dashboard-meta flex items-center gap-2 text-sm text-gray-600">' +
+          '      <div class="dashboard-meta flex items-center gap-2 text-[11px] text-gray-600">' +
           '        <svg class="check-icon w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
           '          <path d="M20 6 9 17l-5-5"></path>' +
           '        </svg>' +
@@ -659,10 +658,9 @@ function setClosedRuleBtnActive(btn, active) {
           '      </div>' +
           timerRow +
           '    </div>' +
-          '    <div class="flex-shrink-0">' +
+          '    <div class="card-right-action action-button flex-shrink-0">' +
           actionButton +
           '    </div>' +
-          '  </div>' +
           '  <div class="fixed inset-0 z-[100] hidden" data-menu-backdrop="' +
           guest.id +
           '"></div>' +
@@ -1010,7 +1008,7 @@ function setClosedRuleBtnActive(btn, active) {
           '    <div class="flex items-end justify-between">' +
           '      <div>' +
           '        <div class="flex items-baseline gap-1">' +
-          '          <span class="text-5xl font-bold">' +
+          '          <span class="text-5xl font-bold text-[#FFF7ED]">' +
           derived.waitingCount +
           '</span>' +
           '          <span class="text-lg">組待ち</span>' +
@@ -1019,18 +1017,17 @@ function setClosedRuleBtnActive(btn, active) {
           derived.estimatedWaitTime +
           '</span> 分</p>' +
           '      </div>' +
-          '      <div class="flex flex-col gap-2">' +
-          '        <div class="px-2.5 py-1 bg-[#FFF7ED] rounded-full text-[9px] flex items-center gap-2 text-[#E56A0A]">' +
-          '          <span class="leading-none font-medium">呼び出し中</span>' +
-          '          <span class="font-bold text-sm leading-none">' +
+          '      <div class="flex flex-col items-end gap-2">' +
+          '        <div class="inline-flex items-center justify-center gap-2 h-[30px] px-4 bg-[#E56A0A] text-white rounded-full text-[9px] font-semibold border border-white/25 box-border">' +
+          '          <span class="leading-none">呼び出し中</span>' +
+          '          <span class="leading-none font-bold">' +
           derived.callingCount +
           '</span>' +
           '        </div>' +
-          '        </div>' +
           (derived.guidingCount > 0
-            ? '<div class="px-3 py-1.5 bg-white/30 backdrop-blur-sm rounded-full text-sm flex items-center gap-2">' +
-              '  <span>案内中</span>' +
-              '  <span class="font-bold">' +
+            ? '<div class="inline-flex items-center justify-center gap-2 h-[30px] px-4 bg-[#FF9D5C] text-white rounded-full text-[9px] font-semibold border border-white/25 box-border">' +
+              '  <span class="leading-none">案内中</span>' +
+              '  <span class="leading-none font-bold">' +
               derived.guidingCount +
               '</span>' +
               '</div>'

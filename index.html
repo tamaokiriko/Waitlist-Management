@@ -295,7 +295,7 @@ function setClosedRuleBtnActive(btn, active) {
     </style>
   </head>
   <body class="bg-background text-foreground">
-    <div id="app-shell" class="max-w-md mx-auto bg-background min-h-screen shadow-2xl">
+    <div id="app-shell" class="max-w-md mx-auto bg-background shadow-2xl">
       <div id="app-root"></div>
     </div>
 
@@ -1206,7 +1206,7 @@ function setClosedRuleBtnActive(btn, active) {
         const hasWaitingGuests = derived.filteredGuests.some((g) => g.status === 'WAITING');
 
         return (
-          '<div class="min-h-screen bg-background flex flex-col">' +
+          '<div class="bg-background flex flex-col">' +
           '  <header class="bg-[#FD780F] text-white px-4 pt-4 pb-6 rounded-b-[34px] overflow-hidden">' +
           '    <div class="flex items-center justify-between mb-4">' +
           '      <button id="menu-button" class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">' +
@@ -1250,7 +1250,7 @@ function setClosedRuleBtnActive(btn, active) {
           '      </div>' +
           '    </div>' +
           '  </header>' +
-          '  <div class="bg-white border-b border-gray-100 -mt-3">' +
+          '  <div class="bg-white border-b border-gray-100 mt-2 py-2">' +
           '    <div class="flex">' +
           filterTabs
             .map(function (tab) {
@@ -1271,7 +1271,7 @@ function setClosedRuleBtnActive(btn, active) {
             .join('') +
           '    </div>' +
           '  </div>' +
-          '  <div class="flex-1 px-4 py-4 space-y-4 overflow-auto" id="guest-list">' +
+          '  <div class="flex-1 px-4 py-4 pb-32 space-y-4 overflow-auto" id="guest-list">' +
           derived.filteredGuests.map(renderGuestCard).join('') +
           '  </div>' +
           renderHoldSection(derived.holdGuests, derived.holdCount) +

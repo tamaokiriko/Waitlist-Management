@@ -333,11 +333,11 @@ function setClosedRuleBtnActive(btn, active) {
       function renderLogin() {
         return (
           '<div id="login-screen" class="min-h-screen bg-white flex flex-col items-center px-6">' +
-    '  <div class="w-full max-w-sm flex-1 flex flex-col items-start pt-10">' +
+    '  <div class="w-full max-w-sm flex-1 flex flex-col items-start pt-[12.5rem]">' +
     '    <img src="./public/etable-logo-orange.svg" alt="ETABLE" class="login-logo-img" />' +
     '    <p id="login-subtitle" class="login-subtitle text-[11px] tracking-[0.35em] text-gray-300 mb-10 text-left">PREMIUM WAITLIST APP</p>' +
           '    <div class="w-full space-y-4">' +
-          '      <div class="flex items-center gap-3 rounded-2xl bg-gray-50 px-4 py-4">' +
+          '      <div class="flex items-center gap-3 rounded-2xl bg-gray-50 px-4 h-[64px]">' +
           '        <svg class="w-5 h-5 text-gray-400" stroke-width="1.5" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
           '          <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4Z"></path>' +
           '          <path d="M6 20c0-2.21 2.686-4 6-4s6 1.79 6 4"></path>' +
@@ -347,7 +347,7 @@ function setClosedRuleBtnActive(btn, active) {
           '          <input id="login-email" type="text" class="w-full text-sm text-gray-700 outline-none bg-transparent pr-2" />' +
           '        </div>' +
           '      </div>' +
-          '      <div class="flex items-center gap-3 rounded-2xl bg-gray-50 px-4 py-4">' +
+          '      <div class="flex items-center gap-3 rounded-2xl bg-gray-50 px-4 h-[64px]">' +
           '        <svg class="w-5 h-5 text-gray-400" stroke-width="1.5" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
           '          <rect x="3" y="11" width="18" height="10" rx="2"></rect>' +
           '          <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>' +
@@ -358,7 +358,7 @@ function setClosedRuleBtnActive(btn, active) {
           '        </div>' +
           '      </div>' +
           '    </div>' +
-          '    <button id="login-button" class="w-full mt-6 bg-[#FD780F] text-white font-semibold h-[56px] rounded-full flex items-center justify-center gap-3 active:scale-[0.99] transition-transform">' +
+          '    <button id="login-button" class="w-full mt-6 bg-[#FD780F] text-white font-semibold h-[64px] rounded-full flex items-center justify-center gap-3 active:scale-[0.99] transition-transform">' +
           '      <span>ログイン</span>' +
           '      <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
           '        <path d="M5 12h14"></path>' +
@@ -375,18 +375,11 @@ function setClosedRuleBtnActive(btn, active) {
         return (
           '<div class="min-h-screen bg-white flex flex-col">' +
           '  <div class="px-6 pt-8">' +
-          '    <h1 class="text-2xl font-bold tracking-tight">' +
-          '      <span class="text-[#FD780F]">E</span>' +
-          '      <span class="text-[#082752]">TABLE</span>' +
-          '    </h1>' +
+          '    <img src="./public/etable-logo-orange.svg" alt="ETABLE" class="login-logo-img" />' +
           '  </div>' +
           '  <div class="flex-1 flex flex-col items-center justify-center px-6">' +
           '    <div class="w-28 h-28 rounded-full bg-[#FFF7ED] flex items-center justify-center mb-8">' +
-          '      <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#FD780F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">' +
-          '        <circle cx="12" cy="12" r="10"></circle>' +
-          '        <polyline points="12 6 12 12 16 14"></polyline>' +
-          '        <line x1="4" y1="4" x2="20" y2="20"></line>' +
-          '      </svg>' +
+          '      <img src="./public/icon-login.svg" alt="" class="w-14 h-14" />' +
           '    </div>' +
           '    <h2 class="text-3xl font-bold text-[#082752] mb-4">受付停止中</h2>' +
           '    <p class="text-gray-400 text-center text-sm leading-relaxed">' +
@@ -1021,7 +1014,7 @@ function setClosedRuleBtnActive(btn, active) {
           '          <line x1="3" y1="18" x2="21" y2="18"></line>' +
           '        </svg>' +
           '      </button>' +
-          '      <h1 class="text-xl font-bold tracking-tight">ETABLE</h1>' +
+          '      <img src="./public/etable-logo-white.svg" alt="ETABLE" class="h-6 w-auto" />' +
           '      <button id="history-button" class="px-4 py-2 bg-white rounded-full text-sm font-semibold text-[#082752]">履歴</button>' +
           '    </div>' +
           '    <div class="flex items-end justify-between">' +

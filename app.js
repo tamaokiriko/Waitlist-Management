@@ -114,6 +114,7 @@ function setClosedRuleBtnActive(btn, active) {
         guests: initialGuests.slice(),
         filterTab: 'all',
         historyTab: 'all', // 'all' | 'completed' | 'cancelled'
+        analyticsPeriod: 'today', // 'today' | 'week' | 'month'
         sidebarOpen: false,
         nextNumber: 5,
         todayGuidedCount: 0,
@@ -994,7 +995,7 @@ function setClosedRuleBtnActive(btn, active) {
         const hasWaitingGuests = derived.filteredGuests.some((g) => g.status === 'WAITING');
 
         return (
-          '<div id="dashboard-screen" class="bg-background flex flex-col">' +
+          '<div id="dashboard-screen" class="bg-background flex flex-col min-h-screen">' +
           '  <header class="bg-[#FD780F] text-white px-4 pt-4 pb-6 rounded-b-[34px] overflow-hidden">' +
           '    <div class="flex items-center justify-between mb-4">' +
           '      <button id="menu-button" class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">' +
@@ -1037,7 +1038,7 @@ function setClosedRuleBtnActive(btn, active) {
           '      </div>' +
           '    </div>' +
           '  </header>' +
-          '  <div class="bg-white border-b border-gray-100 mt-2 py-2">' +
+          '  <div class="bg-white border-b border-gray-100 pt-2 pb-0">' +
           '    <div class="flex">' +
           filterTabs
             .map(function (tab) {
@@ -1045,12 +1046,12 @@ function setClosedRuleBtnActive(btn, active) {
               return (
                 '<button data-filter="' +
                 tab.key +
-                '" class="flex-1 py-3 text-sm font-medium transition-colors relative ' +
+                '" class="flex-1 pt-3 pb-4 text-sm font-medium transition-colors relative ' +
                 (isActive ? 'text-[#FD780F]' : 'text-gray-500 hover:text-gray-700') +
                 '">' +
                 tab.label +
                 (isActive
-                  ? '<div class="absolute bottom-0 left-1/4 right-1/4 h-0.5 bg-[#FD780F] rounded-full"></div>'
+                  ? '<div class="absolute bottom-0 left-1/4 right-1/4 h-1 bg-[#FD780F] rounded-full transition-all duration-200"></div>'
                   : '') +
                 '</button>'
               );
@@ -1065,10 +1066,12 @@ function setClosedRuleBtnActive(btn, active) {
           (hasWaitingGuests && !state.sidebarOpen && !state.openCardMenuId
             ? '<div class="fixed bottom-8 right-6 z-50">' +
               '  <button id="call-next" class="flex flex-col items-center">' +
-              '    <div class="w-16 h-16 bg-[#FD780F] rounded-full flex items-center justify-center shadow-lg shadow-orange-300 mb-2">' +
-              '      <svg class="w-7 h-7 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
-              '        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.11 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.12.81.37 1.6.72 2.34a2 2 0 0 1-.45 2.18L8.09 9.91a16 16 0 0 0 6 6l1.67-1.24a2 2 0 0 1 2.18-.45 11.36 11.36 0 0 0 2.34.72A2 2 0 0 1 22 16.92Z"></path>' +
-              '      </svg>' +
+              '    <div class="relative mb-2 flex items-center justify-center">' +
+              '      <div class="w-16 h-16 rounded-full flex items-center justify-center border-[4px] border-white box-border">' +
+              '        <div class="w-12 h-12 rounded-full flex items-center justify-center bg-[#FD780F] shadow-[0_0_16px_rgba(253,120,15,0.6)]">' +
+              '          <img src="public/icon-next.svg" alt="次を呼び出す" class="w-6 h-6 filter brightness-0 invert" />' +
+              '        </div>' +
+              '      </div>' +
               '    </div>' +
               '    <span class="px-3 py-1.5 bg-[#082752] text-white text-xs rounded-full font-medium">次を呼び出す</span>' +
               '  </button>' +
@@ -1126,13 +1129,7 @@ function setClosedRuleBtnActive(btn, active) {
           '      <div class="sales-hero-icon">' +
           '        <div class="sales-hero-ring">' +
           '          <div class="sales-hero-core">' +
-          '            <svg class="sales-trophy" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
-          '              <path d="M8 21h8"></path>' +
-          '              <path d="M12 17v4"></path>' +
-          '              <path d="M7 4h10v4a5 5 0 0 1-10 0V4z"></path>' +
-          '              <path d="M5 6H3v1a4 4 0 0 0 4 4"></path>' +
-          '              <path d="M19 6h2v1a4 4 0 0 1-4 4"></path>' +
-          '            </svg>' +
+          '            <img src="public/icon-end.svg" alt="達成" class="sales-end-icon" />' +
           '          </div>' +
           '        </div>' +
           '      </div>' +
@@ -1146,8 +1143,8 @@ function setClosedRuleBtnActive(btn, active) {
           '        <div class="sales-card-label">' +
           '          <span class="sales-card-label-icon sales-card-label-icon--orange">' +
           '            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
-          '              <path d="M3 3v18h18"></path>' +
-          '              <path d="M7 13l3-3 4 4 5-5"></path>' +
+          '              <circle cx="12" cy="12" r="9"></circle>' +
+          '              <path d="M8 12.5l2 2 6-6"></path>' +
           '            </svg>' +
           '          </span>' +
           '          <span>案内組数</span>' +
@@ -1164,8 +1161,9 @@ function setClosedRuleBtnActive(btn, active) {
           '        <div class="sales-card-label">' +
           '          <span class="sales-card-label-icon sales-card-label-icon--gray">' +
           '            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
-          '              <path d="M10.29 3.86 1.82 12.34a1 1 0 0 0 0 1.41l8.47 8.48a1 1 0 0 0 1.71-.71V4.57a1 1 0 0 0-1.71-.71Z"></path>' +
-          '              <path d="M21.82 11.66 13.34 3.18A1 1 0 0 0 12 3.9V20.1a1 1 0 0 0 1.71.71l8.47-8.48a1 1 0 0 0 0-1.41Z"></path>' +
+          '              <circle cx="12" cy="12" r="9"></circle>' +
+          '              <path d="M15 9l-6 6"></path>' +
+          '              <path d="M9 9l6 6"></path>' +
           '            </svg>' +
           '          </span>' +
           '          <span>離脱組数</span>' +
@@ -1182,6 +1180,12 @@ function setClosedRuleBtnActive(btn, active) {
           '    <div class="sales-card-wide">' +
           '      <div class="sales-wide-left">' +
           '        <div class="sales-card-label">' +
+          '          <span class="sales-card-label-icon sales-card-label-icon--gray">' +
+          '            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
+          '              <circle cx="12" cy="12" r="9"></circle>' +
+          '              <path d="M12 7v5l3 2"></path>' +
+          '            </svg>' +
+          '          </span>' +
           '          <span>平均待ち時間</span>' +
           '        </div>' +
           '        <div class="sales-wide-metric">' +
@@ -1204,33 +1208,34 @@ function setClosedRuleBtnActive(btn, active) {
           '    <div class="sales-actions">' +
           '      <button id="summary-analyze" class="sales-btn sales-btn--primary" type="button">' +
           '        <span class="sales-btn-icon sales-btn-icon--orange">' +
-          '          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
-          '            <path d="M4 19V5"></path>' +
-          '            <path d="M9 19V9"></path>' +
-          '            <path d="M14 19v-6"></path>' +
-          '            <path d="M19 19V7"></path>' +
+          '          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6">' +
+          '            <path d="M3 3v16a2 2 0 0 0 2 2h16"></path>' +
+          '            <path d="M18 17V9"></path>' +
+          '            <path d="M13 17V5"></path>' +
+          '            <path d="M8 17v-3"></path>' +
           '          </svg>' +
           '        </span>' +
           '        <span class="sales-btn-text">さらに詳しく分析する</span>' +
           '      </button>' +
           '' +
           '      <button id="summary-save" class="sales-btn sales-btn--secondary" type="button">' +
-          '        <span class="sales-btn-icon sales-btn-icon--muted">' +
-          '          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
-          '            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>' +
-          '            <path d="M14 2v6h6"></path>' +
-          '            <path d="M8 13h8"></path>' +
-          '            <path d="M8 17h6"></path>' +
+      '        <span class="sales-btn-icon">' +
+          '          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6">' +
+          '            <path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"></path>' +
+          '            <path d="M14 2v5a1 1 0 0 0 1 1h5"></path>' +
+          '            <path d="M10 9H8"></path>' +
+          '            <path d="M16 13H8"></path>' +
+          '            <path d="M16 17H8"></path>' +
           '          </svg>' +
           '        </span>' +
           '        <span class="sales-btn-text">レポートを保存</span>' +
           '      </button>' +
           '' +
           '      <button id="summary-home" class="sales-btn sales-btn--outline" type="button">' +
-          '        <span class="sales-btn-icon sales-btn-icon--outline">' +
-          '          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
-          '            <path d="M3 10.5 12 3l9 7.5"></path>' +
-          '            <path d="M5 10v11h14V10"></path>' +
+      '        <span class="sales-btn-icon">' +
+          '          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6">' +
+          '            <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"></path>' +
+          '            <path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>' +
           '          </svg>' +
           '        </span>' +
           '        <span class="sales-btn-text">ホームへ戻る</span>' +
@@ -1252,29 +1257,29 @@ function setClosedRuleBtnActive(btn, active) {
         const cancelledCount = cancelledGuests.length;
 
         const tabBtn = (key, label, count, isActive) => {
-          const textClass = isActive ? 'text-[#FD780F]' : 'text-gray-500';
+          const textClass = isActive ? 'text-[#FD780F]' : 'text-[#98A2B3]';
           const badgeClass = isActive
-            ? 'bg-[#FD780F] text-white'
-            : 'bg-gray-100 text-gray-500 border border-gray-200';
+            ? 'bg-[#FFF1E7] text-[#FD780F]'
+            : 'bg-[#F3F4F6] text-[#98A2B3]';
 
           return (
             '<button data-history-tab="' +
             key +
-            '" class="flex-1 py-3 text-sm font-medium transition-colors relative ' +
+            '" class="flex-1 h-[60px] py-0 text-[14px] font-semibold transition-colors relative ' +
             textClass +
             '">' +
             '  <div class="flex items-center justify-center gap-2">' +
             '    <span>' +
             label +
             '    </span>' +
-            '    <span class="inline-flex items-center px-2 py-0.5 text-xs rounded-full ' +
+            '    <span class="inline-flex items-center justify-center min-w-[30px] h-7 px-2 rounded-full text-[13px] font-bold leading-none ' +
             badgeClass +
             '">' +
             count +
             '    </span>' +
             '  </div>' +
             (isActive
-              ? '<div class="absolute bottom-1 left-3 right-3 h-0.5 bg-[#FD780F] rounded-full"></div>'
+              ? '<div class="absolute bottom-1 left-1/4 right-1/4 h-1 bg-[#FD780F] rounded-full transition-all duration-200"></div>'
               : '') +
             '</button>'
           );
@@ -1283,22 +1288,24 @@ function setClosedRuleBtnActive(btn, active) {
         // カード本体は DOM 構築（innerHTML でカードを雑に組み立てない）
         return (
           '<div class="min-h-screen bg-background">' +
-          '  <header class="sticky top-0 bg-white border-b border-gray-100 px-4 py-4 flex items-center justify-between z-10">' +
-          '    <button id="back-dashboard" onclick="goBackToDashboard()" class="w-8 h-8 flex items-center justify-center">' +
-          '      <svg class="w-5 h-5 text-[#082752]" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
-          '        <path d="M15 18l-6-6 6-6"></path>' +
-          '      </svg>' +
-          '    </button>' +
-          '    <h1 class="text-lg font-bold text-[#082752]">案内・キャンセル履歴</h1>' +
-          '    <div class="w-8 h-8"></div>' +
+          '  <header class="sticky top-0 bg-white border-b border-[#EEF2F7] px-6 py-5 z-10">' +
+          '    <div class="grid grid-cols-[56px_1fr_56px] items-center">' +
+          '      <button id="back-dashboard" onclick="goBackToDashboard()" class="w-10 h-10 flex items-center justify-center">' +
+          '        <svg class="w-6 h-6 text-[#0F274D]" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
+          '          <path d="M15 18l-6-6 6-6"></path>' +
+          '        </svg>' +
+          '      </button>' +
+          '      <h1 class="text-[22px] font-bold text-[#0F274D] text-center">案内・キャンセル履歴</h1>' +
+          '      <div class="w-10 h-10"></div>' +
+          '    </div>' +
           '  </header>' +
-          '  <div class="px-4 py-6">' +
-          '    <div class="flex gap-2 p-1 bg-gray-100 rounded-xl mb-6">' +
+          '  <div class="px-0 py-0">' +
+          '    <div class="flex gap-0 bg-white border-b border-[#EEF2F7]">' +
           tabBtn('all', 'すべて', allCount, tab === 'all') +
           tabBtn('completed', '案内済', completedCount, tab === 'completed') +
           tabBtn('cancelled', 'キャンセル', cancelledCount, tab === 'cancelled') +
           '    </div>' +
-          '    <div class="space-y-3" id="history-cards"></div>' +
+          '    <div class="space-y-3 px-4 py-6" id="history-cards"></div>' +
           '  </div>' +
           '</div>'
         );
@@ -1312,29 +1319,23 @@ function setClosedRuleBtnActive(btn, active) {
       };
 
       function createHistoryRestoreIcon() {
+        // public/icon-restore.svg と同じ形状（ただし currentColor 連動のためインライン化）
         const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        svg.setAttribute('class', 'w-4 h-4');
+        svg.setAttribute('class', 'w-5 h-5');
         svg.setAttribute('viewBox', '0 0 24 24');
         svg.setAttribute('fill', 'none');
         svg.setAttribute('stroke', 'currentColor');
-        svg.setAttribute('stroke-width', '1.5');
+        svg.setAttribute('stroke-width', '2');
         svg.setAttribute('stroke-linecap', 'round');
         svg.setAttribute('stroke-linejoin', 'round');
 
-        // "復元"（左回転矢印）アイコン（シンプル線）
         const p1 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        p1.setAttribute('d', 'M3 12a9 9 0 0 1 9-9');
+        p1.setAttribute('d', 'M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8');
         const p2 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        p2.setAttribute('d', 'M3 3v6h6');
-        const p3 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        p3.setAttribute('d', 'M21 12a9 9 0 0 1-9 9');
-        const p4 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        p4.setAttribute('d', 'M21 21v-6h-6');
+        p2.setAttribute('d', 'M3 3v5h5');
 
         svg.appendChild(p1);
         svg.appendChild(p2);
-        svg.appendChild(p3);
-        svg.appendChild(p4);
         return svg;
       }
 
@@ -1440,11 +1441,12 @@ function setClosedRuleBtnActive(btn, active) {
           const restoreBtn = document.createElement('button');
           restoreBtn.type = 'button';
           restoreBtn.className =
-            'w-[92px] py-2 rounded-xl bg-gray-100 text-gray-400 hover:bg-gray-200 transition-colors text-sm font-medium flex items-center justify-center gap-2';
+            'w-[44px] h-[66px] shrink-0 rounded-2xl bg-[#F3F4F6] text-[#98A2B3] hover:bg-[#E5E7EB] transition-colors font-bold flex flex-col items-center justify-center gap-1';
           restoreBtn.setAttribute('data-restore-id', guest.id);
 
           const icon = createHistoryRestoreIcon();
           const label = document.createElement('span');
+          label.className = 'leading-none text-[8px]';
           label.textContent = '復元';
           restoreBtn.appendChild(icon);
           restoreBtn.appendChild(label);
@@ -1459,12 +1461,61 @@ function setClosedRuleBtnActive(btn, active) {
       function renderAnalyticsScreen() {
         // React版 AnalyticsScreen.tsx の構造をそのまま再現しつつ、
         // グラフ部分のみ SVG のエリアチャートで表現
-        const pastRecords = [
-          { date: '2025/03/05', count: 142, hasHighTraffic: true },
-          { date: '2025/03/04', count: 98, hasHighTraffic: false },
-          { date: '2025/03/03', count: 0, hasHighTraffic: false },
-          { date: '2025/03/02', count: 185, hasHighTraffic: true },
-        ];
+        const analyticsPeriod = state.analyticsPeriod ?? 'today';
+        const periodConfig = {
+          today: {
+            totalGuidedCount: 96,
+            dropoutRate: 4.1,
+            avgWaitMinutes: 18.2,
+            chartAreaPath:
+              'M0 150 C 40 130, 80 110, 120 115 C 160 120, 200 105, 240 95 C 280 105, 300 125, 320 135 L 320 160 L 0 160 Z',
+            chartLinePath:
+              'M0 150 C 40 130, 80 110, 120 115 C 160 120, 200 105, 240 95 C 280 105, 300 125, 320 135',
+            pastRecords: [
+              { date: '今日（00-06）', count: 38, hasHighTraffic: false },
+              { date: '今日（06-12）', count: 42, hasHighTraffic: false },
+              { date: '今日（12-18）', count: 0, hasHighTraffic: false },
+              { date: '今日（18-24）', count: 58, hasHighTraffic: true },
+            ],
+          },
+          week: {
+            totalGuidedCount: 428,
+            dropoutRate: 4.2,
+            avgWaitMinutes: 24.5,
+            chartAreaPath:
+              'M0 140 C 40 110, 80 90, 120 100 C 160 120, 200 80, 240 70 C 280 90, 300 110, 320 120 L 320 160 L 0 160 Z',
+            chartLinePath:
+              'M0 140 C 40 110, 80 90, 120 100 C 160 120, 200 80, 240 70 C 280 90, 300 110, 320 120',
+            pastRecords: [
+              { date: '2025/03/05', count: 142, hasHighTraffic: true },
+              { date: '2025/03/04', count: 98, hasHighTraffic: false },
+              { date: '2025/03/03', count: 0, hasHighTraffic: false },
+              { date: '2025/03/02', count: 185, hasHighTraffic: true },
+            ],
+          },
+          month: {
+            totalGuidedCount: 1320,
+            dropoutRate: 3.7,
+            avgWaitMinutes: 29.8,
+            chartAreaPath:
+              'M0 135 C 40 120, 80 100, 120 105 C 160 110, 200 85, 240 75 C 280 85, 300 105, 320 115 L 320 160 L 0 160 Z',
+            chartLinePath:
+              'M0 135 C 40 120, 80 100, 120 105 C 160 110, 200 85, 240 75 C 280 85, 300 105, 320 115',
+            pastRecords: [
+              { date: '2025/02', count: 410, hasHighTraffic: false },
+              { date: '2025/02後半', count: 520, hasHighTraffic: true },
+              { date: '2025/03前半', count: 0, hasHighTraffic: false },
+              { date: '2025/03', count: 590, hasHighTraffic: true },
+            ],
+          },
+        };
+        const cfg = periodConfig[analyticsPeriod] ?? periodConfig.today;
+        const pastRecords = cfg.pastRecords;
+        const totalGuidedCount = cfg.totalGuidedCount;
+        const dropoutRate = cfg.dropoutRate;
+        const avgWaitMinutes = cfg.avgWaitMinutes;
+        const chartAreaPath = cfg.chartAreaPath;
+        const chartLinePath = cfg.chartLinePath;
 
         return (
           '<div class="min-h-screen bg-background">' +
@@ -1481,9 +1532,15 @@ function setClosedRuleBtnActive(btn, active) {
           '  <div class="px-4 py-6">' +
           // 期間タブ
           '    <div class="flex gap-2 p-1 bg-gray-100 rounded-xl mb-6">' +
-          '      <button class="flex-1 py-2 rounded-lg text-sm font-medium text-gray-500">今日</button>' +
-          '      <button class="flex-1 py-2 rounded-lg text-sm font-medium bg-[#082752] text-white">今週</button>' +
-          '      <button class="flex-1 py-2 rounded-lg text-sm font-medium text-gray-500">今月</button>' +
+          '      <button data-analytics-period="today" class="flex-1 py-2 rounded-lg text-sm font-medium ' +
+          (analyticsPeriod === 'today' ? 'bg-[#082752] text-white' : 'text-gray-500') +
+          '">今日</button>' +
+          '      <button data-analytics-period="week" class="flex-1 py-2 rounded-lg text-sm font-medium ' +
+          (analyticsPeriod === 'week' ? 'bg-[#082752] text-white' : 'text-gray-500') +
+          '">今週</button>' +
+          '      <button data-analytics-period="month" class="flex-1 py-2 rounded-lg text-sm font-medium ' +
+          (analyticsPeriod === 'month' ? 'bg-[#082752] text-white' : 'text-gray-500') +
+          '">今月</button>' +
           '    </div>' +
           // 上部2カラムカード（総案内数 / 離脱率）
           '    <div class="grid grid-cols-2 gap-4 mb-6">' +
@@ -1496,7 +1553,9 @@ function setClosedRuleBtnActive(btn, active) {
           '          <span class="text-xs text-gray-500">総案内数</span>' +
           '        </div>' +
           '        <div class="flex items-baseline">' +
-          '          <span class="text-3xl font-bold text-[#FD780F]">428</span>' +
+          '          <span class="text-3xl font-bold text-[#FD780F]">' +
+          totalGuidedCount +
+          '</span>' +
           '          <span class="text-sm text-gray-500 ml-1">組</span>' +
           '        </div>' +
           '      </div>' +
@@ -1509,7 +1568,9 @@ function setClosedRuleBtnActive(btn, active) {
           '          <span class="text-xs text-gray-500">離脱率</span>' +
           '        </div>' +
           '        <div class="flex items-baseline">' +
-          '          <span class="text-3xl font-bold text-[#082752]">4.2</span>' +
+          '          <span class="text-3xl font-bold text-[#082752]">' +
+          dropoutRate +
+          '</span>' +
           '          <span class="text-sm text-gray-500 ml-1">%</span>' +
           '        </div>' +
           '      </div>' +
@@ -1526,7 +1587,9 @@ function setClosedRuleBtnActive(btn, active) {
           '            <span class="text-sm text-white/70">平均待ち時間</span>' +
           '          </div>' +
           '          <div class="flex items-baseline">' +
-          '            <span class="text-4xl font-bold text-white">24.5</span>' +
+          '            <span class="text-4xl font-bold text-white">' +
+          avgWaitMinutes +
+          '</span>' +
           '            <span class="text-lg text-white/70 ml-2">min</span>' +
           '          </div>' +
           '        </div>' +
@@ -1559,9 +1622,13 @@ function setClosedRuleBtnActive(btn, active) {
           '            </linearGradient>' +
           '          </defs>' +
           // 面
-          '          <path d="M0 140 C 40 110, 80 90, 120 100 C 160 120, 200 80, 240 70 C 280 90, 300 110, 320 120 L 320 160 L 0 160 Z" fill="url(#analyticsArea)" />' +
+          '          <path d="' +
+          chartAreaPath +
+          '" fill="url(#analyticsArea)" />' +
           // 線
-          '          <path d="M0 140 C 40 110, 80 90, 120 100 C 160 120, 200 80, 240 70 C 280 90, 300 110, 320 120" fill="none" stroke="#FD780F" stroke-width="2" />' +
+          '          <path d="' +
+          chartLinePath +
+          '" fill="none" stroke="#FD780F" stroke-width="2" />' +
           '        </svg>' +
           '      </div>' +
           '    </div>' +
@@ -2577,6 +2644,17 @@ function setClosedRuleBtnActive(btn, active) {
           }
 
           return;
+        }
+
+        if (state.currentScreen === 'analytics') {
+          document.querySelectorAll('[data-analytics-period]').forEach((btn) => {
+            btn.addEventListener('click', () => {
+              const period = btn.getAttribute('data-analytics-period');
+              if (!period) return;
+              state.analyticsPeriod = period;
+              render();
+            });
+          });
         }
 
         if (state.currentScreen === 'history') {

@@ -4,6 +4,16 @@
   --font-en: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
+/* Tailwind utility overrides (design合わせ) */
+.text-4xl {
+  font-size: 1.75rem !important;
+}
+
+.py-1\.5 {
+  padding-top: 0.275rem !important;
+  padding-bottom: 0.275rem !important;
+}
+
 body {
   font-family: var(--font-jp);
   font-weight: 500;
@@ -320,7 +330,7 @@ body {
 /* Notify method selection: keep layout, tweak look only */
 #notify-modal-root #notify-line-box,
 #notify-modal-root #notify-email-box {
-  border-radius: 16px !important; /* FIX 2: slightly rounder */
+  border-radius: 23px !important; /* match design: more round */
   border: none !important; /* default: no border */
   box-shadow: none !important;
   color: #e5e7eb; /* inactive icon color baseline */
@@ -427,22 +437,22 @@ body {
 
 .sales-summary-page {
   min-height: 100vh;
-  background: #F5F7FB; /* bluish soft gray */
+  background: #FFFFFF;
   color: #22304A; /* softened navy */
 }
 
 .sales-summary-inner {
   max-width: 420px;
   margin: 0 auto;
-  padding: 28px 18px 30px;
+  padding: 50px 18px 30px;
 }
 
 .sales-hero {
   position: relative;
   display: flex;
   justify-content: center;
-  margin-top: 6px;
-  margin-bottom: 18px;
+  margin-top: 0px;
+  margin-bottom: 16px;
 }
 
 .sales-hero-badge {
@@ -495,9 +505,17 @@ body {
   stroke-width: 1.7;
 }
 
+.sales-end-icon {
+  width: 40px;
+  height: 40px;
+  display: block;
+  /* external SVG loaded via <img> doesn't inherit tailwind text color reliably */
+  filter: brightness(0) invert(1);
+}
+
 .sales-title {
   text-align: center;
-  font-size: 26px;
+  font-size: 30px;
   line-height: 1.25;
   font-weight: 800;
   letter-spacing: -0.02em;
@@ -511,7 +529,7 @@ body {
   line-height: 1.5;
   font-weight: 700;
   color: #FD780F;
-  margin: 0 0 18px;
+  margin: 0 0 22px;
 }
 .sales-heart {
   margin-right: 4px;
@@ -520,8 +538,8 @@ body {
 .sales-grid-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-bottom: 12px;
+  gap: 14px;
+  margin-bottom: 16px;
 }
 
 .sales-card {
@@ -531,10 +549,12 @@ body {
   border: 1px solid #EEF1F5;
 }
 .sales-card--guided {
-  background: #F6EFE6;
+  background: #FFF1E7;
+  border-color: rgba(253, 120, 15, 0.18);
 }
 .sales-card--drop {
-  background: #F2F4F8;
+  background: #F3F4F6;
+  border-color: #E5E7EB;
 }
 
 .sales-card-label {
@@ -596,12 +616,12 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  background: #F7F8FB;
+  background: #F9FAFB;
   border-radius: 26px;
   padding: 16px 16px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
   border: 1px solid #EEF1F5;
-  margin: 10px 0 18px;
+  margin: 10px 0 20px;
 }
 
 .sales-wide-left {
@@ -683,7 +703,7 @@ body {
 }
 
 .sales-btn--primary {
-  background: #22304A; /* softened navy */
+  background: #082752;
   color: #fff;
 }
 .sales-btn--primary:hover {

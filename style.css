@@ -272,3 +272,407 @@ body {
 #notify-modal-root.notify-exit {
   pointer-events: none;
 }
+
+/* Notify method selection (LINE glow) */
+#notify-modal-root #notify-line-box {
+  transition: all 0.2s ease;
+}
+
+/* 選択時：枠線デザインをやめて、柔らかいグロー＋内側白縁＋少し柔らかい緑に */
+#notify-modal-root #notify-line-box.is-active {
+  border: none !important; /* FIX 1: 外枠線を削除 */
+  background: linear-gradient(180deg, #22C55E 0%, #16A34A 100%); /* FIX 3 */
+  box-shadow:
+    inset 0 0 0 3px rgba(255, 255, 255, 0.95), /* FIX 4: 白い縁 */
+    0 0 0 6px rgba(34, 197, 94, 0.15),        /* FIX 2: グロー（弱） */
+    0 8px 20px rgba(34, 197, 94, 0.18);       /* FIX 2: にじみ（柔） */
+}
+
+/* ------------------------------------------------------------
+   Status color system (absolute rule)
+   色は“見た目”ではなく“状態”に紐づける
+   - status-call    : 呼び出し（default）= NAVY
+   - status-waiting : 案内する（案内待ち）= ORANGE
+   - status-guiding : 案内完了（案内中）= GREEN
+------------------------------------------------------------ */
+
+.guest-card {
+  background: #fff;
+}
+
+/* Card background (subtle) */
+.status-waiting.guest-card {
+  background: linear-gradient(to right, rgba(253, 120, 15, 0.12), #fff 70%);
+}
+.status-guiding.guest-card {
+  background: linear-gradient(to right, rgba(34, 197, 94, 0.12), #fff 70%);
+}
+
+/* Right action button (same rule across statuses) */
+.action-button {
+  background-color: var(--etable-navy);
+  transition: filter 150ms ease, background-color 150ms ease;
+}
+.action-button:hover {
+  filter: brightness(0.95);
+}
+
+.status-call .action-button {
+  background-color: #0F2E57; /* absolute rule */
+}
+.status-waiting .action-button {
+  background-color: var(--etable-orange);
+}
+.status-guiding .action-button {
+  background-color: var(--etable-green);
+}
+
+/* Status badge (統一) */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  font-weight: 500;
+  color: #fff;
+}
+.status-waiting .status-badge {
+  background-color: var(--etable-orange);
+}
+.status-guiding .status-badge {
+  background-color: var(--etable-green);
+}
+
+/* Time badge accent (案内待ち=オレンジ / 案内中=緑) */
+.time-badge {
+  background: #fff;
+  border: 1px solid rgba(229, 231, 235, 1); /* gray-200 */
+}
+.status-waiting .time-badge {
+  color: var(--etable-orange);
+  border-color: rgba(253, 120, 15, 0.25);
+}
+.status-guiding .time-badge {
+  color: var(--etable-green);
+  border-color: rgba(34, 197, 94, 0.25);
+}
+
+/* ------------------------------------------------------------
+   Sales summary page (営業実績) - mobile only
+   デザイン優先でピクセル寄せ（余白/角丸/影/配色）
+------------------------------------------------------------ */
+
+.sales-summary-page {
+  min-height: 100vh;
+  background: #F5F7FB; /* bluish soft gray */
+  color: #22304A; /* softened navy */
+}
+
+.sales-summary-inner {
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 28px 18px 30px;
+}
+
+.sales-hero {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  margin-top: 6px;
+  margin-bottom: 18px;
+}
+
+.sales-hero-badge {
+  position: absolute;
+  top: -10px;
+  padding: 6px 12px;
+  border-radius: 9999px;
+  background: #22304A; /* softened navy */
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.sales-hero-icon {
+  width: 110px;
+  height: 110px;
+  display: grid;
+  place-items: center;
+}
+
+.sales-hero-ring {
+  width: 106px;
+  height: 106px;
+  border-radius: 9999px;
+  background: #FFFFFF;
+  /* ring: slightly gray, without changing size */
+  box-shadow:
+    0 10px 26px rgba(0, 0, 0, 0.06),
+    inset 0 0 0 6px #F0F2F6;
+  display: grid;
+  place-items: center;
+}
+
+.sales-hero-core {
+  width: 88px;
+  height: 88px;
+  border-radius: 9999px;
+  background: #FD780F;
+  display: grid;
+  place-items: center;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.28);
+}
+
+.sales-trophy {
+  width: 46px;
+  height: 46px;
+  color: #fff;
+  stroke-width: 1.7;
+}
+
+.sales-title {
+  text-align: center;
+  font-size: 26px;
+  line-height: 1.25;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin: 6px 0 10px;
+  color: #22304A;
+}
+
+.sales-subtitle {
+  text-align: center;
+  font-size: 14px;
+  line-height: 1.5;
+  font-weight: 700;
+  color: #FD780F;
+  margin: 0 0 18px;
+}
+.sales-heart {
+  margin-right: 4px;
+}
+
+.sales-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.sales-card {
+  border-radius: 22px;
+  padding: 14px 14px 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  border: 1px solid #EEF1F5;
+}
+.sales-card--guided {
+  background: #F6EFE6;
+}
+.sales-card--drop {
+  background: #F2F4F8;
+}
+
+.sales-card-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #98A2B3;
+  margin-bottom: 10px;
+}
+
+.sales-card-label-icon {
+  width: 18px;
+  height: 18px;
+  border-radius: 7px;
+  display: grid;
+  place-items: center;
+}
+.sales-card-label-icon svg {
+  width: 14px;
+  height: 14px;
+  stroke-width: 2;
+}
+.sales-card-label-icon--orange {
+  background: rgba(253, 120, 15, 0.16);
+  color: #FD780F;
+}
+.sales-card-label-icon--gray {
+  background: rgba(8, 39, 82, 0.08);
+  color: rgba(8, 39, 82, 0.55);
+}
+
+.sales-metric {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+.sales-metric-value {
+  font-size: 38px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+.sales-metric-value--orange {
+  color: #FD780F;
+}
+.sales-metric-value--navy {
+  color: #22304A;
+}
+.sales-metric-unit {
+  font-size: 14px;
+  font-weight: 700;
+  color: #98A2B3;
+}
+
+.sales-card-wide {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: #F7F8FB;
+  border-radius: 26px;
+  padding: 16px 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  border: 1px solid #EEF1F5;
+  margin: 10px 0 18px;
+}
+
+.sales-wide-left {
+  flex: 1;
+  min-width: 0;
+}
+.sales-wide-metric {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.sales-wide-value {
+  font-size: 40px;
+  font-weight: 850;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  color: #22304A;
+}
+.sales-wide-unit {
+  font-size: 14px;
+  font-weight: 700;
+  color: #98A2B3;
+}
+
+.sales-wide-right {
+  flex: none;
+}
+.sales-wide-iconbox {
+  width: 54px;
+  height: 54px;
+  border-radius: 18px;
+  background: #f6efe7; /* pale beige */
+  display: grid;
+  place-items: center;
+  box-shadow: inset 0 0 0 1px rgba(253, 120, 15, 0.08);
+}
+.sales-clock {
+  width: 24px;
+  height: 24px;
+  color: #FD780F;
+  stroke-width: 1.8;
+}
+
+.sales-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sales-btn {
+  width: 100%;
+  height: 56px;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  font-weight: 800;
+  font-size: 15px;
+  letter-spacing: -0.01em;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  border: 1px solid transparent;
+  transition: transform 120ms ease, filter 120ms ease, background-color 120ms ease;
+}
+.sales-btn:active {
+  transform: translateY(1px);
+}
+
+.sales-btn-icon {
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+}
+.sales-btn-icon svg {
+  width: 22px;
+  height: 22px;
+  stroke-width: 2.2;
+}
+
+.sales-btn--primary {
+  background: #22304A; /* softened navy */
+  color: #fff;
+}
+.sales-btn--primary:hover {
+  filter: brightness(0.96);
+}
+.sales-btn-icon--orange {
+  color: #FD780F;
+}
+
+.sales-btn--secondary {
+  background: #eef1f6;
+  color: rgba(34, 48, 74, 0.82);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+.sales-btn--secondary:hover {
+  filter: brightness(0.98);
+}
+.sales-btn-icon--muted {
+  color: rgba(8, 39, 82, 0.55);
+}
+
+.sales-btn--outline {
+  background: rgba(255, 255, 255, 0.85);
+  color: rgba(8, 39, 82, 0.35);
+  border-color: #EEF1F5;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+.sales-btn--outline:hover {
+  filter: brightness(0.99);
+}
+.sales-btn-icon--outline {
+  color: rgba(8, 39, 82, 0.35);
+}
+
+/* ------------------------------------------------------------
+   Dashboard filter tabs spacing + typography (mobile)
+   - レイアウト/高さ/位置は変えず、左右余白と文字サイズのみ調整
+------------------------------------------------------------ */
+
+/* FIX 1: 端ベタ付きを解消（タブ列全体に左右余白感を作る） */
+#app-root button[data-filter]:first-child {
+  margin-left: 16px;
+}
+#app-root button[data-filter]:last-child {
+  margin-right: 16px;
+}
+
+/* FIX 2: タブ文字サイズを10pxに（line-heightも詰まりすぎない） */
+#app-root button[data-filter] {
+  font-size: 10px;
+  line-height: 1.4;
+}

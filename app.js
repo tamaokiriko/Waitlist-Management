@@ -125,6 +125,8 @@ function setClosedRuleBtnActive(btn, active) {
         notifyMethod: null, // 'LINE' | 'EMAIL' | null
         // カードメニューの開閉：同一操作で backdrop 側イベントが走るのを抑制
         menuToggleLockUntil: 0,
+        // 右下の固定ボタン表示制御（カードメニュー表示中は非表示）
+        openCardMenuId: null,
         showEndConfirm: false,
         email: '',
         password: '',
@@ -409,26 +411,29 @@ function setClosedRuleBtnActive(btn, active) {
       }
 
       function renderGuestCard(guest) {
-        const statusBadge =
-          guest.status === 'CALLING'
-            ? '<span class="px-3 py-1 text-xs font-medium rounded-full bg-[#FD780F] text-white">案内待ち</span>'
+        // 色はコンポーネントではなく「状態」に紐づける（CSSで一元管理）
+        const statusClass =
+          guest.status === 'WAITING'
+            ? 'status-call'
+            : guest.status === 'CALLING'
+            ? 'status-waiting'
             : guest.status === 'GUIDING'
-            ? '<span class="px-3 py-1 text-xs font-medium rounded-full bg-[#22C55E] text-white">案内中</span>'
+            ? 'status-guiding'
             : '';
 
-        const bgClass =
+        const statusBadge =
           guest.status === 'CALLING'
-            ? 'bg-gradient-to-r from-[#FFF7ED] to-white'
+            ? '<span class="status-badge">案内待ち</span>'
             : guest.status === 'GUIDING'
-            ? 'bg-gradient-to-r from-[#F0FDF4] to-white'
-            : 'bg-white';
+            ? '<span class="status-badge">案内中</span>'
+            : '';
 
         let actionButton = '';
         if (guest.status === 'WAITING') {
           actionButton =
             '<button data-action="call" data-id="' +
             guest.id +
-            '" class="flex flex-col items-center justify-center bg-[#082752] text-white w-28 h-full min-h-[120px] hover:bg-[#0a3060] transition-colors rounded-l-none rounded-r-2xl">' +
+            '" class="action-button flex flex-col items-center justify-center text-white w-28 h-full min-h-[120px] rounded-l-none rounded-r-2xl">' +
             '  <svg class="w-7 h-7 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
             '    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.11 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.12.81.37 1.6.72 2.34a2 2 0 0 1-.45 2.18L8.09 9.91a16 16 0 0 0 6 6l1.67-1.24a2 2 0 0 1 2.18-.45 11.36 11.36 0 0 0 2.34.72A2 2 0 0 1 22 16.92Z"></path>' +
             '  </svg>' +
@@ -438,7 +443,7 @@ function setClosedRuleBtnActive(btn, active) {
           actionButton =
             '<button data-action="guide" data-id="' +
             guest.id +
-            '" class="flex flex-col items-center justify-center bg-[#22C55E] text-white w-28 h-full min-h-[120px] hover:bg-[#16A34A] transition-colors rounded-l-none rounded-r-2xl">' +
+            '" class="action-button flex flex-col items-center justify-center text-white w-28 h-full min-h-[120px] rounded-l-none rounded-r-2xl">' +
             '  <svg class="w-7 h-7 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
             '    <path d="M5 12h14"></path>' +
             '    <path d="m13 18 6-6-6-6"></path>' +
@@ -449,7 +454,7 @@ function setClosedRuleBtnActive(btn, active) {
           actionButton =
             '<button data-action="complete" data-id="' +
             guest.id +
-            '" class="flex flex-col items-center justify-center bg-[#FD780F] text-white w-28 h-full min-h-[120px] hover:bg-[#e56d0d] transition-colors rounded-l-none rounded-r-2xl">' +
+            '" class="action-button flex flex-col items-center justify-center text-white w-28 h-full min-h-[120px] rounded-l-none rounded-r-2xl">' +
             '  <svg class="w-7 h-7 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
             '    <path d="M19 12H9"></path>' +
             '    <path d="m12 15-3-3 3-3"></path>' +
@@ -462,7 +467,7 @@ function setClosedRuleBtnActive(btn, active) {
         if (guest.status === 'CALLING' && guest.calledAt) {
           timerRow =
             '<div class="flex items-center gap-1 mt-3">' +
-            '  <span class="inline-flex items-center gap-1 px-3 py-1.5 bg-white rounded-full text-xs text-[#FD780F] border border-orange-200">' +
+            '  <span class="time-badge inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs">' +
             '    <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
             '      <circle cx="12" cy="12" r="10"></circle>' +
             '      <path d="M12 6v6l4 2"></path>' +
@@ -477,7 +482,7 @@ function setClosedRuleBtnActive(btn, active) {
         } else if (guest.status === 'GUIDING' && guest.guidedAt) {
           timerRow =
             '<div class="flex items-center gap-1 mt-3">' +
-            '  <span class="inline-flex items-center gap-1 px-3 py-1.5 bg-white rounded-full text-xs text-[#22C55E] border border-green-200">' +
+            '  <span class="time-badge inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs">' +
             '    <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
             '      <circle cx="12" cy="12" r="10"></circle>' +
             '      <path d="M12 6v6l4 2"></path>' +
@@ -622,8 +627,9 @@ function setClosedRuleBtnActive(btn, active) {
           '</div>';
 
         return (
-          '<div class="relative rounded-2xl shadow-lg overflow-visible ' +
-          bgClass +
+          '<div class="guest-card ' +
+          statusClass +
+          ' relative rounded-2xl shadow-lg overflow-visible' +
           '" data-guest-card="' +
           guest.id +
           '">' +
@@ -734,7 +740,7 @@ function setClosedRuleBtnActive(btn, active) {
         return (
           '<div>' +
           '  <div class="fixed inset-0 z-40 bg-black/50" id="sidebar-backdrop"></div>' +
-          '  <div class="fixed left-0 top-0 bottom-0 z-50 w-80 bg-white shadow-2xl flex flex-col animate-in slide-in-from-left" id="sidebar-panel">' +
+          '  <div class="fixed left-0 top-0 bottom-0 z-50 w-80 bg-white shadow-2xl flex flex-col" id="sidebar-panel">' +
           '    <div class="p-6 border-b border-gray-100">' +
           '      <div class="flex items-center justify-between">' +
           '        <h1 class="text-xl font-bold tracking-tight">' +
@@ -1074,7 +1080,7 @@ function setClosedRuleBtnActive(btn, active) {
           derived.filteredGuests.map(renderGuestCard).join('') +
           '  </div>' +
           renderHoldSection(derived.holdGuests, derived.holdCount) +
-          (hasWaitingGuests
+          (hasWaitingGuests && !state.sidebarOpen && !state.openCardMenuId
             ? '<div class="fixed bottom-8 right-6 z-50">' +
               '  <button id="call-next" class="flex flex-col items-center">' +
               '    <div class="w-16 h-16 bg-[#FD780F] rounded-full flex items-center justify-center shadow-lg shadow-orange-300 mb-2">' +
@@ -1113,7 +1119,144 @@ function setClosedRuleBtnActive(btn, active) {
       }
 
       function renderSummaryScreen() {
-        return renderPlaceholderScreen('本日の営業サマリー');
+        const completedCount = state.guests.filter((g) => g.status === 'COMPLETED').length;
+        const cancelledCount = state.guests.filter((g) => g.status === 'CANCELLED').length;
+
+        // 簡易的な平均待ち時間（COMPLETED の createdAt→completedAt を分単位で平均）
+        const completedGuests = state.guests.filter(
+          (g) => g.status === 'COMPLETED' && typeof g.completedAt === 'number'
+        );
+        const avgWaitMinutes = (() => {
+          if (completedGuests.length === 0) return 0;
+          const total = completedGuests.reduce((sum, g) => {
+            const diffMs = g.completedAt - g.createdAt;
+            const min = Math.max(0, Math.round(diffMs / 60000));
+            return sum + min;
+          }, 0);
+          return Math.round((total / completedGuests.length) * 10) / 10;
+        })();
+
+        return (
+          '<div class="sales-summary-page">' +
+          '  <div class="sales-summary-inner">' +
+          '    <div class="sales-hero">' +
+          '      <div class="sales-hero-badge">達成！</div>' +
+          '      <div class="sales-hero-icon">' +
+          '        <div class="sales-hero-ring">' +
+          '          <div class="sales-hero-core">' +
+          '            <svg class="sales-trophy" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
+          '              <path d="M8 21h8"></path>' +
+          '              <path d="M12 17v4"></path>' +
+          '              <path d="M7 4h10v4a5 5 0 0 1-10 0V4z"></path>' +
+          '              <path d="M5 6H3v1a4 4 0 0 0 4 4"></path>' +
+          '              <path d="M19 6h2v1a4 4 0 0 1-4 4"></path>' +
+          '            </svg>' +
+          '          </div>' +
+          '        </div>' +
+          '      </div>' +
+          '    </div>' +
+          '' +
+          '    <h1 class="sales-title">本日の営業実績</h1>' +
+          '    <p class="sales-subtitle"><span class="sales-heart">❤️</span> 今日も一日お疲れ様でした！</p>' +
+          '' +
+          '    <div class="sales-grid-2">' +
+          '      <div class="sales-card sales-card--guided">' +
+          '        <div class="sales-card-label">' +
+          '          <span class="sales-card-label-icon sales-card-label-icon--orange">' +
+          '            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
+          '              <path d="M3 3v18h18"></path>' +
+          '              <path d="M7 13l3-3 4 4 5-5"></path>' +
+          '            </svg>' +
+          '          </span>' +
+          '          <span>案内組数</span>' +
+          '        </div>' +
+          '        <div class="sales-metric">' +
+          '          <span class="sales-metric-value sales-metric-value--orange font-en">' +
+          completedCount +
+          '</span>' +
+          '          <span class="sales-metric-unit">組</span>' +
+          '        </div>' +
+          '      </div>' +
+          '' +
+          '      <div class="sales-card sales-card--drop">' +
+          '        <div class="sales-card-label">' +
+          '          <span class="sales-card-label-icon sales-card-label-icon--gray">' +
+          '            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
+          '              <path d="M10.29 3.86 1.82 12.34a1 1 0 0 0 0 1.41l8.47 8.48a1 1 0 0 0 1.71-.71V4.57a1 1 0 0 0-1.71-.71Z"></path>' +
+          '              <path d="M21.82 11.66 13.34 3.18A1 1 0 0 0 12 3.9V20.1a1 1 0 0 0 1.71.71l8.47-8.48a1 1 0 0 0 0-1.41Z"></path>' +
+          '            </svg>' +
+          '          </span>' +
+          '          <span>離脱組数</span>' +
+          '        </div>' +
+          '        <div class="sales-metric">' +
+          '          <span class="sales-metric-value sales-metric-value--navy font-en">' +
+          cancelledCount +
+          '</span>' +
+          '          <span class="sales-metric-unit">組</span>' +
+          '        </div>' +
+          '      </div>' +
+          '    </div>' +
+          '' +
+          '    <div class="sales-card-wide">' +
+          '      <div class="sales-wide-left">' +
+          '        <div class="sales-card-label">' +
+          '          <span>平均待ち時間</span>' +
+          '        </div>' +
+          '        <div class="sales-wide-metric">' +
+          '          <span class="sales-wide-value font-en">' +
+          avgWaitMinutes +
+          '</span>' +
+          '          <span class="sales-wide-unit">分 / 組</span>' +
+          '        </div>' +
+          '      </div>' +
+          '      <div class="sales-wide-right">' +
+          '        <div class="sales-wide-iconbox">' +
+          '          <svg class="sales-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
+          '            <circle cx="12" cy="12" r="10"></circle>' +
+          '            <path d="M12 6v6l4 2"></path>' +
+          '          </svg>' +
+          '        </div>' +
+          '      </div>' +
+          '    </div>' +
+          '' +
+          '    <div class="sales-actions">' +
+          '      <button id="summary-analyze" class="sales-btn sales-btn--primary" type="button">' +
+          '        <span class="sales-btn-icon sales-btn-icon--orange">' +
+          '          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
+          '            <path d="M4 19V5"></path>' +
+          '            <path d="M9 19V9"></path>' +
+          '            <path d="M14 19v-6"></path>' +
+          '            <path d="M19 19V7"></path>' +
+          '          </svg>' +
+          '        </span>' +
+          '        <span class="sales-btn-text">さらに詳しく分析する</span>' +
+          '      </button>' +
+          '' +
+          '      <button id="summary-save" class="sales-btn sales-btn--secondary" type="button">' +
+          '        <span class="sales-btn-icon sales-btn-icon--muted">' +
+          '          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
+          '            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>' +
+          '            <path d="M14 2v6h6"></path>' +
+          '            <path d="M8 13h8"></path>' +
+          '            <path d="M8 17h6"></path>' +
+          '          </svg>' +
+          '        </span>' +
+          '        <span class="sales-btn-text">レポートを保存</span>' +
+          '      </button>' +
+          '' +
+          '      <button id="summary-home" class="sales-btn sales-btn--outline" type="button">' +
+          '        <span class="sales-btn-icon sales-btn-icon--outline">' +
+          '          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
+          '            <path d="M3 10.5 12 3l9 7.5"></path>' +
+          '            <path d="M5 10v11h14V10"></path>' +
+          '          </svg>' +
+          '        </span>' +
+          '        <span class="sales-btn-text">ホームへ戻る</span>' +
+          '      </button>' +
+          '    </div>' +
+          '  </div>' +
+          '</div>'
+        );
       }
 
       function renderHistoryScreen() {
@@ -1980,6 +2123,7 @@ function setClosedRuleBtnActive(btn, active) {
               const menu = document.querySelector('[data-menu="' + id + '"]');
               const backdrop = document.querySelector('[data-menu-backdrop="' + id + '"]');
               if (!menu || !backdrop) return;
+              const callNext = document.getElementById('call-next');
               const isHidden = menu.classList.contains('hidden');
               document
                 .querySelectorAll('[data-menu]')
@@ -1990,7 +2134,13 @@ function setClosedRuleBtnActive(btn, active) {
               if (isHidden) {
                 menu.classList.remove('hidden');
                 backdrop.classList.remove('hidden');
+                state.openCardMenuId = id;
+                // メニュー開閉はDOM操作で完結（renderすると即閉じに見えるため）
+                if (callNext) callNext.style.display = 'none';
+                return;
               }
+              state.openCardMenuId = null;
+              if (callNext) callNext.style.display = '';
             });
           });
 
@@ -1999,12 +2149,15 @@ function setClosedRuleBtnActive(btn, active) {
               if (Date.now() < state.menuToggleLockUntil) return;
               // クリック対象が backdrop 自身以外なら閉じない（メニュー内クリック誤判定防止）
               if (e.target !== el) return;
+              const callNext = document.getElementById('call-next');
               document
                 .querySelectorAll('[data-menu]')
                 .forEach((m) => m.classList.add('hidden'));
               document
                 .querySelectorAll('[data-menu-backdrop]')
                 .forEach((b) => b.classList.add('hidden'));
+              state.openCardMenuId = null;
+              if (callNext) callNext.style.display = '';
             });
           });
 
@@ -2013,12 +2166,15 @@ function setClosedRuleBtnActive(btn, active) {
               e.stopPropagation();
               const id = el.getAttribute('data-id');
               const action = el.getAttribute('data-menu-action');
+              const callNext = document.getElementById('call-next');
 
               // メニューを一旦閉じてから次へ遷移（通知モーダルなど）
               document.querySelectorAll('[data-menu]').forEach((m) => m.classList.add('hidden'));
               document
                 .querySelectorAll('[data-menu-backdrop]')
                 .forEach((b) => b.classList.add('hidden'));
+              state.openCardMenuId = null;
+              if (callNext) callNext.style.display = '';
 
               if (action === 'phone') {
                 state.selectedGuestIdForCall = id;
@@ -2215,6 +2371,10 @@ function setClosedRuleBtnActive(btn, active) {
                   emailIcon.className = emailActive ? EMAIL_ICON_ACTIVE : METHOD_ICON_INACTIVE;
                 if (emailLabel)
                   emailLabel.className = emailActive ? EMAIL_LABEL_ACTIVE : METHOD_LABEL_INACTIVE;
+
+                // CSSで“選択状態”を安定して表現するためのフラグ（レイアウト/サイズ変更なし）
+                if (lineBox) lineBox.classList.toggle('is-active', lineActive);
+                if (emailBox) emailBox.classList.toggle('is-active', emailActive);
 
                 // プレビュー + 次へ（通知送信）活性
                 if (!preview || !previewText || !sendBtn) return;
@@ -2455,7 +2615,56 @@ function setClosedRuleBtnActive(btn, active) {
           const backBtn = document.getElementById('back-dashboard');
           if (backBtn) {
             backBtn.addEventListener('click', () => {
-              setCurrentScreen(state.previousScreen || 'dashboard');
+              const fallback = state.previousScreen || 'dashboard';
+              // ブラウザ履歴がある場合はそれを優先（無反応回避）
+              if (window.history && window.history.length > 1) {
+                try {
+                  window.history.back();
+                  return;
+                } catch (e) {
+                  // ignore and fallback to SPA navigation
+                }
+              }
+              setCurrentScreen(fallback);
+            });
+          }
+
+          return;
+        }
+
+        if (state.currentScreen === 'summary') {
+          const analyze = document.getElementById('summary-analyze');
+          if (analyze) {
+            analyze.addEventListener('click', () => {
+              setCurrentScreen('analytics');
+            });
+          }
+
+          const home = document.getElementById('summary-home');
+          if (home) {
+            home.addEventListener('click', () => {
+              setCurrentScreen('dashboard');
+            });
+          }
+
+          const save = document.getElementById('summary-save');
+          if (save) {
+            save.addEventListener('click', () => {
+              const payload = {
+                date: new Date().toISOString().slice(0, 10),
+                guidedCount: state.guests.filter((g) => g.status === 'COMPLETED').length,
+                droppedCount: state.guests.filter((g) => g.status === 'CANCELLED').length,
+              };
+
+              const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = 'etable-sales-report-' + payload.date + '.json';
+              document.body.appendChild(a);
+              a.click();
+              a.remove();
+              URL.revokeObjectURL(url);
             });
           }
 
@@ -2488,7 +2697,13 @@ function setClosedRuleBtnActive(btn, active) {
 
       setInterval(() => {
         // 通知設定モーダル表示中は再描画で選択状態が崩れないように止める
-        if (state.currentScreen === 'dashboard' && !state.callModalOpen) {
+        // カードメニュー/サイドバー表示中もDOMを維持して操作を優先する
+        if (
+          state.currentScreen === 'dashboard' &&
+          !state.callModalOpen &&
+          !state.openCardMenuId &&
+          !state.sidebarOpen
+        ) {
           render();
         }
       }, 1000);

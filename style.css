@@ -95,3 +95,180 @@ body {
   margin-top: 42px;
   margin-bottom: 12px;
 }
+
+/* ---- moved from index.html <style> (keep behavior) ---- */
+/* globals.css からのカスタムプロパティをそのまま移植 */
+:root {
+  --background: oklch(0.98 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+  /* ETABLE Custom Colors */
+  --etable-orange: #FD780F;
+  --etable-orange-light: #FFF7ED;
+  --etable-navy: #082752;
+  --etable-green: #22C55E;
+  --etable-green-light: #DCFCE7;
+  --etable-waiting-bg: #F0FDF4;
+  --etable-calling-bg: #FFF7ED;
+  --etable-guiding-bg: #EFF6FF;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+/* Tailwind pluginの代表クラスだけ移植（デザイン変更なしで挙動を再現） */
+.animate-in {
+  animation-duration: 150ms;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  animation-fill-mode: both;
+}
+.slide-in-from-left {
+  --tw-translate-x: -100%;
+  animation-name: slide-in-from-left;
+}
+@keyframes slide-in-from-left {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* business-hours-modal time input styling */
+#business-hours-modal input[type="time"] {
+  -webkit-appearance: none;
+  appearance: none;
+  border: none;
+  outline: none;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  display: block;
+  box-sizing: border-box;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  color: #082752;
+  cursor: pointer;
+  border-radius: 12px;
+  box-shadow: none;
+  font-family: var(--font-en);
+  font-weight: 700;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+#business-hours-modal input[type="time"]::-webkit-calendar-picker-indicator {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+#business-hours-modal input[type="time"]::-webkit-inner-spin-button,
+#business-hours-modal input[type="time"]::-webkit-clear-button {
+  display: none;
+}
+#business-hours-modal input[type="time"]:hover,
+#business-hours-modal input[type="time"]:active {
+  background: rgba(243, 244, 246, 0.9); /* gray-100 */
+  box-shadow: none;
+}
+#business-hours-modal input[type="time"]:focus {
+  outline: none;
+  color: #FD780F;
+  background: rgba(243, 244, 246, 0.95);
+  box-shadow: none;
+}
+
+/* settings: auto-cancel minutes number input */
+#auto-cancel-minutes-input {
+  border: none;
+  outline: none;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  font-family: var(--font-en);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+#auto-cancel-minutes-input:focus {
+  outline: none;
+}
+#auto-cancel-minutes-input::-webkit-outer-spin-button,
+#auto-cancel-minutes-input::-webkit-inner-spin-button {
+  opacity: 1;
+}
+
+/* settings: call-message-input textarea width fix */
+#call-message-input {
+  width: 100%;
+  box-sizing: border-box;
+  display: block;
+}
+
+/* notification modal: open/close animation (only for notify modal) */
+@keyframes notify-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+@keyframes notify-out {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+}
+
+#notify-modal-root .notify-panel {
+  animation: notify-in 180ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+#notify-modal-root.notify-exit .notify-panel {
+  animation: notify-out 180ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+#notify-modal-root.notify-exit #notify-backdrop {
+  opacity: 0;
+  transition: opacity 180ms ease-in;
+}
+#notify-modal-root.notify-exit {
+  pointer-events: none;
+}

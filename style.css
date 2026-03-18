@@ -1,0 +1,97 @@
+/* Font tuning only (layout/structureは変更しない) */
+:root {
+  --font-jp: "Helvetica Neue", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;
+  --font-en: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+body {
+  font-family: var(--font-jp);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* English / digits */
+.font-en {
+  font-family: var(--font-en) !important;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+/* Japanese */
+.font-jp {
+  font-family: var(--font-jp) !important;
+  font-weight: 500;
+}
+
+/* digits inside common containers */
+#history-cards .text-4xl,
+#guest-list [data-guest-card] .text-3xl,
+#notify-modal-root .text-5xl {
+  font-family: var(--font-en) !important;
+  font-variant-numeric: tabular-nums;
+}
+
+/* elapsed timers (digits) */
+[data-elapsed-id] {
+  font-family: var(--font-en) !important;
+  font-variant-numeric: tabular-nums;
+}
+
+/* business-hours: time digits should be sharp */
+#business-hours-modal input[type="time"] {
+  font-family: var(--font-en) !important;
+  font-variant-numeric: tabular-nums;
+}
+
+/* settings: auto cancel minutes input digits */
+#auto-cancel-minutes-input {
+  font-family: var(--font-en) !important;
+  font-variant-numeric: tabular-nums;
+}
+
+/* notification: LINE/EMAIL labels (English) */
+#notify-modal-root #notify-line-label,
+#notify-modal-root #notify-email-label {
+  font-family: var(--font-en) !important;
+  font-weight: 700;
+}
+
+/* Login screen (スクショ基準：フォントとプレースホルダ重ね表示のみ) */
+#login-screen {
+  font-family: "Poppins", "Avenir", "Avenir Next", "Helvetica Neue", Arial, sans-serif;
+  letter-spacing: -0.01em;
+}
+
+#login-screen input {
+  font-family: inherit;
+}
+
+.login-placeholder-label {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af; /* screenshot-like gray */
+  font-size: 14px;
+  line-height: 1.2;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.login-subtitle {
+  font-size: 11px;
+  color: #d1d5db; /* lighter than gray-400 */
+  letter-spacing: 0.35em;
+  font-weight: 500;
+}
+
+/* Login: logo size & top spacing (スクショ基準：かなり小さめ + 上余白) */
+.login-logo-img {
+  width: 96px !important;
+  height: auto;
+  display: block;
+  margin-top: 42px;
+  margin-bottom: 12px;
+}

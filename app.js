@@ -427,10 +427,10 @@ function setClosedRuleBtnActive(btn, active) {
             '<button data-action="call" data-id="' +
             guest.id +
             '" class="action-button flex flex-col items-center justify-center text-white w-[130px] h-[120px] rounded-l-none rounded-r-[12px]">' +
-            '  <svg class="w-5 h-5 mb-2" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+            '  <svg class="w-[20px] h-[20px] mb-2" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
             '    <path d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384"></path>' +
             '  </svg>' +
-            '  <span class="text-sm font-medium">呼び出し</span>' +
+            '  <span class="text-[11px] font-medium">呼び出し</span>' +
             '</button>';
         } else if (guest.status === 'CALLING') {
           actionButton =
@@ -622,19 +622,14 @@ function setClosedRuleBtnActive(btn, active) {
         return (
           '<div class="guest-card ' +
           statusClass +
-          ' relative rounded-2xl shadow-lg overflow-visible' +
+          ' dashboard-card relative rounded-2xl shadow-lg overflow-visible' +
           '" data-guest-card="' +
           guest.id +
           '">' +
           '  <div class="flex">' +
-          '    <div class="flex flex-col justify-center gap-1 px-3 py-4">' +
-          '      <div class="w-1.5 h-1.5 rounded-full bg-gray-300"></div>' +
-          '      <div class="w-1.5 h-1.5 rounded-full bg-gray-300"></div>' +
-          '      <div class="w-1.5 h-1.5 rounded-full bg-gray-300"></div>' +
-          '    </div>' +
-          '    <div class="flex-1 py-5 pr-2">' +
+'    <div class="card-left-content flex-1 py-5 pr-2 pl-6">' +
           '      <div class="flex items-center gap-3 mb-3">' +
-          '        <span class="text-3xl font-bold text-[#082752]">No.' +
+          '        <span class="text-[24px] font-bold text-[#082752]">No.' +
           guest.number +
           '</span>' +
           statusBadge +
@@ -642,7 +637,7 @@ function setClosedRuleBtnActive(btn, active) {
           '          <button class="p-2 rounded-full transition-colors hover:bg-gray-100" data-menu-toggle="' +
           guest.id +
           '">' +
-          '            <svg class="w-5 h-5 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
+          '            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" stroke-width="2" opacity="1">' +
           '              <circle cx="12" cy="5" r="1"></circle>' +
           '              <circle cx="12" cy="12" r="1"></circle>' +
           '              <circle cx="12" cy="19" r="1"></circle>' +
@@ -650,10 +645,9 @@ function setClosedRuleBtnActive(btn, active) {
           '          </button>' +
           '        </div>' +
           '      </div>' +
-          '      <div class="flex items-center gap-2 text-sm text-gray-600">' +
-          '        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
-          '          <path d="M5 13c0 3.866 3.134 7 7 7s7-3.134 7-7"></path>' +
-          '          <path d="M9 11l3 3 5-5"></path>' +
+          '      <div class="dashboard-meta flex items-center gap-2 text-sm text-gray-600">' +
+          '        <svg class="check-icon w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+          '          <path d="M20 6 9 17l-5-5"></path>' +
           '        </svg>' +
           '        <span>' +
           guest.partySize +
@@ -898,28 +892,28 @@ function setClosedRuleBtnActive(btn, active) {
         const sendBtnDisabled = !notifyMethod;
         const sendBtnClass = (() => {
           if (!notifyMethod) {
-            return 'w-full py-4 rounded-xl text-white font-medium flex items-center justify-center gap-2 bg-gray-300 cursor-not-allowed transition-colors';
+            return 'modal-submit w-full h-[56px] rounded-[16px] text-white font-medium flex items-center justify-center gap-2 bg-gray-300 cursor-not-allowed';
           }
           if (notifyMethod === 'LINE') {
-            return 'w-full py-4 rounded-xl text-white font-medium flex items-center justify-center gap-2 bg-[#22C55E] hover:bg-[#16A34A] transition-colors';
+            return 'modal-submit w-full h-[56px] rounded-[16px] text-white font-medium flex items-center justify-center gap-2 bg-[#22C55E] hover:bg-[#16A34A] transition-colors';
           }
-          return 'w-full py-4 rounded-xl text-white font-medium flex items-center justify-center gap-2 bg-[#082752] hover:bg-[#0a3060] transition-colors';
+          return 'modal-submit w-full h-[56px] rounded-[16px] text-white font-medium flex items-center justify-center gap-2 bg-[#082752] hover:bg-[#0a3060] transition-colors';
         })();
 
         const lineBoxClass = isLine
-          ? 'w-16 h-16 rounded-2xl flex items-center justify-center border-2 border-[#22C55E] bg-[#DCFCE7] transition-all'
-          : 'w-16 h-16 rounded-2xl flex items-center justify-center border-2 border-gray-200 bg-gray-50 hover:border-gray-300 transition-all';
-        const lineIconClass = isLine ? 'w-8 h-8 text-[#22C55E]' : 'w-8 h-8 text-gray-400';
+          ? 'w-16 h-16 rounded-2xl flex items-center justify-center bg-[#22C55E] transition-all'
+          : 'w-16 h-16 rounded-2xl flex items-center justify-center bg-gray-50 transition-all';
+        const lineIconClass = isLine ? 'w-8 h-8 text-white' : 'w-8 h-8 text-[#e5e7eb]';
         const lineLabelClass = isLine ? 'text-sm font-bold text-[#22C55E]' : 'text-sm font-bold text-gray-500';
 
         const emailBoxClass = isEmail
-          ? 'w-16 h-16 rounded-2xl flex items-center justify-center border-2 border-[#082752] bg-[#082752] transition-all'
-          : 'w-16 h-16 rounded-2xl flex items-center justify-center border-2 border-gray-200 bg-gray-50 hover:border-gray-300 transition-all';
-        const emailIconClass = isEmail ? 'w-8 h-8 text-white' : 'w-8 h-8 text-gray-400';
-        const emailLabelClass = isEmail ? 'text-sm font-bold text-white' : 'text-sm font-bold text-gray-500';
+          ? 'w-16 h-16 rounded-2xl flex items-center justify-center bg-[#082752] transition-all'
+          : 'w-16 h-16 rounded-2xl flex items-center justify-center bg-gray-50 transition-all';
+        const emailIconClass = isEmail ? 'w-8 h-8 text-white' : 'w-8 h-8 text-[#e5e7eb]';
+        const emailLabelClass = isEmail ? 'text-sm font-bold text-[#082752]' : 'text-sm font-bold text-gray-500';
 
         return (
-          '<div class="fixed inset-0 z-50 flex items-center justify-center p-4" id="notify-modal-root">' +
+          '<div class="fixed inset-0 z-50 flex items-center justify-center px-6 py-4" id="notify-modal-root">' +
           '  <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" id="notify-backdrop"></div>' +
           '  <div class="relative w-full max-w-sm bg-white rounded-3xl p-6 shadow-2xl notify-panel">' +
           '    <button id="notify-close" class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition-colors">' +
@@ -931,7 +925,7 @@ function setClosedRuleBtnActive(btn, active) {
           '    <h2 class="text-xl font-bold text-[#082752] mb-8">通知手段の選択</h2>' +
           '    <div class="text-center mb-8">' +
           '      <p class="text-sm text-gray-400 mb-2">呼び出し対象</p>' +
-          '      <p class="text-5xl font-bold text-[#FD780F]">No.' +
+          '      <p class="modal-number text-[28px] leading-none font-bold text-[#FD780F]">No.' +
           guest.number +
           '</p>' +
           '    </div>' +
@@ -940,14 +934,10 @@ function setClosedRuleBtnActive(btn, active) {
           '        <div id="notify-line-box" class="' +
           lineBoxClass +
           '">' +
-          // LINE風：吹き出し（崩れにくいようにパスで定義）
           '          <svg id="notify-line-icon" class="' +
           lineIconClass +
-          '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">' +
-          '            <path d="M21 12c0 4.418-4.03 8-9 8-1.42 0-2.76-.29-3.93-.82L3 21l1.84-4.23A7.92 7.92 0 0 1 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>' +
-          '            <path d="M8.5 12h.01"></path>' +
-          '            <path d="M12 12h.01"></path>' +
-          '            <path d="M15.5 12h.01"></path>' +
+          '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+          '            <path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"></path>' +
           '          </svg>' +
           '        </div>' +
           '        <span id="notify-line-label" class="' +
@@ -960,9 +950,9 @@ function setClosedRuleBtnActive(btn, active) {
           '">' +
           '          <svg id="notify-email-icon" class="' +
           emailIconClass +
-          '" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
-          '            <rect x="3" y="5" width="18" height="14" rx="2"></rect>' +
-          '            <polyline points="3 7 12 13 21 7"></polyline>' +
+          '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+          '            <path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7"></path>' +
+          '            <rect x="2" y="4" width="20" height="16" rx="2"></rect>' +
           '          </svg>' +
           '        </div>' +
           '        <span id="notify-email-label" class="' +
@@ -982,7 +972,7 @@ function setClosedRuleBtnActive(btn, active) {
           (sendBtnDisabled ? 'disabled' : '') +
           ' class="' +
           sendBtnClass +
-          '">' +
+          '" type="button">' +
           '      <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
           '        <path d="m22 2-7 20-4-9-9-4 20-7z"></path>' +
           '      </svg>' +
@@ -2306,22 +2296,22 @@ function setClosedRuleBtnActive(btn, active) {
                 'w-16 h-16 rounded-2xl flex items-center justify-center border-2 border-gray-200 bg-gray-50 hover:border-gray-300 transition-all';
               const LINE_BOX_ACTIVE =
                 'w-16 h-16 rounded-2xl flex items-center justify-center border-2 border-[#22C55E] bg-[#DCFCE7] transition-all';
-              const METHOD_ICON_INACTIVE = 'w-8 h-8 text-gray-400';
-              const METHOD_ICON_ACTIVE = 'w-8 h-8 text-[#22C55E]';
+              const METHOD_ICON_INACTIVE = 'w-8 h-8 text-[#e5e7eb]';
+              const METHOD_ICON_ACTIVE = 'w-8 h-8 text-white';
               const METHOD_LABEL_INACTIVE = 'text-sm font-bold text-gray-500';
               const METHOD_LABEL_ACTIVE = 'text-sm font-bold text-[#22C55E]';
 
               const EMAIL_BOX_ACTIVE =
                 'w-16 h-16 rounded-2xl flex items-center justify-center border-2 border-[#082752] bg-[#082752] transition-all';
               const EMAIL_ICON_ACTIVE = 'w-8 h-8 text-white';
-              const EMAIL_LABEL_ACTIVE = 'text-sm font-bold text-white';
+              const EMAIL_LABEL_ACTIVE = 'text-sm font-bold text-[#082752]';
 
               const SEND_DISABLED_CLASS =
                 'w-full py-4 rounded-xl text-white font-medium flex items-center justify-center gap-2 bg-gray-300 cursor-not-allowed transition-colors';
               const SEND_LINE_CLASS =
-                'w-full py-4 rounded-xl text-white font-medium flex items-center justify-center gap-2 bg-[#22C55E] hover:bg-[#16A34A] transition-colors';
+                'modal-submit w-full h-[56px] rounded-[16px] text-white font-medium flex items-center justify-center gap-2 bg-[#22C55E] hover:bg-[#16A34A] transition-colors';
               const SEND_EMAIL_CLASS =
-                'w-full py-4 rounded-xl text-white font-medium flex items-center justify-center gap-2 bg-[#082752] hover:bg-[#0a3060] transition-colors';
+                'modal-submit w-full h-[56px] rounded-[16px] text-white font-medium flex items-center justify-center gap-2 bg-[#082752] hover:bg-[#0a3060] transition-colors';
 
               const computePreviewText = (method) => {
                 if (method === 'LINE') {
@@ -2369,21 +2359,21 @@ function setClosedRuleBtnActive(btn, active) {
                 if (lineBox) lineBox.classList.toggle('is-active', lineActive);
                 if (emailBox) emailBox.classList.toggle('is-active', emailActive);
 
-                // プレビュー + 次へ（通知送信）活性
-                if (!preview || !previewText || !sendBtn) return;
+                // プレビュー表示（送信ボタンはUIから削除されている場合がある）
+                if (!preview || !previewText) return;
 
                 if (!method) {
                   preview.classList.add('hidden');
-                  sendBtn.setAttribute('disabled', 'true');
-                  sendBtn.className = SEND_DISABLED_CLASS;
                   previewText.textContent = '';
                   return;
                 }
 
                 preview.classList.remove('hidden');
                 previewText.textContent = computePreviewText(method);
-                sendBtn.removeAttribute('disabled');
-                sendBtn.className = method === 'LINE' ? SEND_LINE_CLASS : SEND_EMAIL_CLASS;
+                if (sendBtn) {
+                  sendBtn.removeAttribute('disabled');
+                  sendBtn.className = method === 'LINE' ? SEND_LINE_CLASS : SEND_EMAIL_CLASS;
+                }
               };
 
               // 初期同期（open直後でも選択状態があれば反映）

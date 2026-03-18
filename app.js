@@ -135,11 +135,13 @@ function setClosedRuleBtnActive(btn, active) {
       };
 
       function setCurrentScreen(screen) {
+        console.log('[setCurrentScreen] called with:', screen, 'current=', state.currentScreen);
         state.previousScreen = state.currentScreen;
         if (screen === 'history') {
           state.historyTab = 'all';
         }
         state.currentScreen = screen;
+        console.log('[setCurrentScreen] new currentScreen:', state.currentScreen, 'previousScreen:', state.previousScreen);
         render();
       }
 
@@ -1282,7 +1284,7 @@ function setClosedRuleBtnActive(btn, active) {
         return (
           '<div class="min-h-screen bg-background">' +
           '  <header class="sticky top-0 bg-white border-b border-gray-100 px-4 py-4 flex items-center justify-between z-10">' +
-          '    <button id="back-dashboard" class="w-8 h-8 flex items-center justify-center">' +
+          '    <button id="back-dashboard" onclick="goBackToDashboard()" class="w-8 h-8 flex items-center justify-center">' +
           '      <svg class="w-5 h-5 text-[#082752]" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
           '        <path d="M15 18l-6-6 6-6"></path>' +
           '      </svg>' +
@@ -1301,6 +1303,13 @@ function setClosedRuleBtnActive(btn, active) {
           '</div>'
         );
       }
+
+      // 履歴画面から一覧（dashboard）へ戻る最小構成のハンドラ
+      window.goBackToDashboard = function () {
+        console.log('[goBackToDashboard] clicked');
+        state.currentScreen = 'dashboard';
+        render();
+      };
 
       function createHistoryRestoreIcon() {
         const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -2591,24 +2600,7 @@ function setClosedRuleBtnActive(btn, active) {
             });
           });
 
-          // 戻る（直前画面へ）
-          const backBtn = document.getElementById('back-dashboard');
-          if (backBtn) {
-            backBtn.addEventListener('click', () => {
-              const fallback = state.previousScreen || 'dashboard';
-              // ブラウザ履歴がある場合はそれを優先（無反応回避）
-              if (window.history && window.history.length > 1) {
-                try {
-                  window.history.back();
-                  return;
-                } catch (e) {
-                  // ignore and fallback to SPA navigation
-                }
-              }
-              setCurrentScreen(fallback);
-            });
-          }
-
+          // 戻るボタンは HTML 側の onclick="goBackToDashboard()" で処理
           return;
         }
 

@@ -373,16 +373,16 @@ function setClosedRuleBtnActive(btn, active) {
 
       function renderClosedScreen() {
         return (
-          '<div class="min-h-screen bg-white flex flex-col">' +
-          '  <div class="px-6 pt-8">' +
-          '    <img src="./public/etable-logo-orange.svg" alt="ETABLE" class="login-logo-img" />' +
+          '<div id="closed-screen" class="min-h-screen bg-white flex flex-col">' +
+          '  <div class="header-logo">' +
+          '    <img src="./public/etable-logo-orange.svg" alt="ETABLE" />' +
           '  </div>' +
           '  <div class="flex-1 flex flex-col items-center justify-center px-6">' +
           '    <div class="w-28 h-28 rounded-full bg-[#FFF7ED] flex items-center justify-center mb-8">' +
           '      <img src="./public/icon-login.svg" alt="" class="w-14 h-14" />' +
           '    </div>' +
-          '    <h2 class="text-3xl font-bold text-[#082752] mb-4">受付停止中</h2>' +
-          '    <p class="text-gray-400 text-center text-sm leading-relaxed">' +
+          '    <h2 class="closed-title text-3xl font-bold text-[#082752] mb-4">受付停止中</h2>' +
+          '    <p class="closed-desc text-gray-400 text-center text-sm leading-relaxed">' +
           '      今日もたくさんのお客様に<br />' +
           '      美味しい体験を届けましょう。' +
           '    </p>' +

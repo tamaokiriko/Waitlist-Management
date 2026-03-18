@@ -437,10 +437,7 @@ function setClosedRuleBtnActive(btn, active) {
             '<button data-action="guide" data-id="' +
             guest.id +
             '" class="action-button-inner flex flex-col items-center justify-center text-white w-full h-full">' +
-            '  <svg class="w-[20px] h-[20px] mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
-            '    <path d="M5 12h14"></path>' +
-            '    <path d="m13 18 6-6-6-6"></path>' +
-            '  </svg>' +
+            '  <img src="./public/icon-annai.svg" alt="" class="w-6 h-6 mb-2" />' +
             '  <span class="text-[11px] font-medium">案内する</span>' +
             '</button>';
         } else if (guest.status === 'GUIDING') {
@@ -448,10 +445,7 @@ function setClosedRuleBtnActive(btn, active) {
             '<button data-action="complete" data-id="' +
             guest.id +
             '" class="action-button-inner flex flex-col items-center justify-center text-white w-full h-full">' +
-            '  <svg class="w-[20px] h-[20px] mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
-            '    <path d="M19 12H9"></path>' +
-            '    <path d="m12 15-3-3 3-3"></path>' +
-            '  </svg>' +
+            '  <img src="./public/icon-done.svg" alt="" class="w-6 h-6 mb-2" />' +
             '  <span class="text-[11px] font-medium">案内完了</span>' +
             '</button>';
         }
@@ -495,22 +489,22 @@ function setClosedRuleBtnActive(btn, active) {
           menuItems.push({
             icon: 'phone',
             label: '電話をかける',
-            color: 'text-[#FD780F]',
-            iconColor: 'text-[#FD780F]',
+            color: 'text-gray-900',
+            iconColor: 'text-gray-900',
             action: 'phone',
           });
           menuItems.push({
             icon: 'pause',
             label: '保留にする',
-            color: 'text-[#082752]',
-            iconColor: 'text-[#082752]',
+            color: 'text-gray-900',
+            iconColor: 'text-gray-900',
             action: 'hold',
           });
           menuItems.push({
             icon: 'x',
             label: 'キャンセル',
-            color: 'text-[#FD780F]',
-            iconColor: 'text-[#FD780F]',
+            color: 'text-[#EF4444]',
+            iconColor: 'text-[#EF4444]',
             action: 'cancel',
           });
         }
@@ -518,29 +512,29 @@ function setClosedRuleBtnActive(btn, active) {
           menuItems.push({
             icon: 'phone',
             label: '電話をかける',
-            color: 'text-[#FD780F]',
-            iconColor: 'text-[#FD780F]',
+            color: 'text-gray-900',
+            iconColor: 'text-gray-900',
             action: 'phone',
           });
           menuItems.push({
             icon: 'pause',
             label: '保留にする',
-            color: 'text-[#082752]',
-            iconColor: 'text-[#082752]',
+            color: 'text-gray-900',
+            iconColor: 'text-gray-900',
             action: 'hold',
           });
           menuItems.push({
             icon: 'timer',
             label: 'タイマーを延長する',
-            color: 'text-[#FD780F]',
-            iconColor: 'text-[#FD780F]',
+            color: 'text-gray-900',
+            iconColor: 'text-gray-900',
             action: 'extend',
           });
           menuItems.push({
             icon: 'x',
             label: 'キャンセル',
-            color: 'text-[#FD780F]',
-            iconColor: 'text-[#FD780F]',
+            color: 'text-[#EF4444]',
+            iconColor: 'text-[#EF4444]',
             action: 'cancel',
           });
         }
@@ -548,15 +542,15 @@ function setClosedRuleBtnActive(btn, active) {
           menuItems.push({
             icon: 'phone',
             label: '電話をかける',
-            color: 'text-[#FD780F]',
-            iconColor: 'text-[#FD780F]',
+            color: 'text-gray-900',
+            iconColor: 'text-gray-900',
             action: 'phone',
           });
           menuItems.push({
             icon: 'x',
             label: 'キャンセル',
-            color: 'text-[#FD780F]',
-            iconColor: 'text-[#FD780F]',
+            color: 'text-[#EF4444]',
+            iconColor: 'text-[#EF4444]',
             action: 'cancel',
           });
         }
@@ -601,8 +595,14 @@ function setClosedRuleBtnActive(btn, active) {
                   '  <path d="m6 6 12 12"></path>' +
                   '</svg>';
               }
+              const rowClass =
+                item.action === 'cancel'
+                  ? 'hover:bg-red-50'
+                  : 'hover:bg-gray-50';
               return (
-                '<button class="w-full flex items-center gap-3 px-4 py-3.5 hover:bg-gray-50 transition-colors" data-menu-action="' +
+                '<button class="menu-item w-full flex items-center gap-3 px-4 py-3.5 transition-colors ' +
+                rowClass +
+                '" data-menu-action="' +
                 item.action +
                 '" data-id="' +
                 guest.id +
@@ -622,7 +622,7 @@ function setClosedRuleBtnActive(btn, active) {
         return (
           '<div class="guest-card ' +
           statusClass +
-          ' dashboard-card relative rounded-2xl shadow-lg overflow-hidden flex' +
+' dashboard-card relative rounded-2xl shadow-lg flex' +
           '" data-guest-card="' +
           guest.id +
           '">' +
@@ -1003,7 +1003,7 @@ function setClosedRuleBtnActive(btn, active) {
           '        </svg>' +
           '      </button>' +
           '      <img src="./public/etable-logo-white.svg" alt="ETABLE" class="h-6 w-auto" />' +
-          '      <button id="history-button" class="px-4 py-2 bg-white rounded-full text-[10px] font-semibold text-[#FD780F] text-center">履歴</button>' +
+          '      <button id="history-button" class="h-10 w-[88px] bg-white rounded-full text-[12px] font-semibold text-[#FD780F] inline-flex items-center justify-center">履歴</button>' +
           '    </div>' +
           '    <div class="flex items-end justify-between">' +
           '      <div>' +

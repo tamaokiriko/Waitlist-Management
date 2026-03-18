@@ -792,6 +792,12 @@ body {
   flex: none;
 }
 
+/* Make right-action icons white inside colored buttons */
+#dashboard-screen .action-button-inner img,
+#dashboard-screen .action-button-inner svg {
+  filter: brightness(0) invert(1);
+}
+
 #dashboard-screen .action-button span {
   font-size: 11px !important;
   line-height: 1.1;
@@ -809,6 +815,11 @@ body {
   background: transparent;
   border: none;
   padding: 0;
+}
+
+/* Card menu dropdown: separators + hover tone */
+[data-menu] .menu-item:not(:last-child) {
+  border-bottom: 1px solid #F1F5F9;
 }
 
 /* (deduped) notify option border reset lives above */

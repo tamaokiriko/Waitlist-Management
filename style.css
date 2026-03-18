@@ -48,6 +48,11 @@ body {
   color: #9ca3af !important; /* "スライドして開店" */
 }
 
+/* Closed screen: slider thumb (white ▶ background) */
+#closed-screen #closed-slider {
+  border-radius: 21px !important; /* was fully rounded */
+}
+
 /* English / digits */
 .font-en {
   font-family: var(--font-en) !important;

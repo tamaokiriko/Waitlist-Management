@@ -426,9 +426,9 @@ function setClosedRuleBtnActive(btn, active) {
           actionButton =
             '<button data-action="call" data-id="' +
             guest.id +
-            '" class="action-button flex flex-col items-center justify-center text-white w-28 h-full min-h-[120px] rounded-l-none rounded-r-2xl">' +
-            '  <svg class="w-7 h-7 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
-            '    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.11 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.12.81.37 1.6.72 2.34a2 2 0 0 1-.45 2.18L8.09 9.91a16 16 0 0 0 6 6l1.67-1.24a2 2 0 0 1 2.18-.45 11.36 11.36 0 0 0 2.34.72A2 2 0 0 1 22 16.92Z"></path>' +
+            '" class="action-button flex flex-col items-center justify-center text-white w-[130px] h-[120px] rounded-l-none rounded-r-[12px]">' +
+            '  <svg class="w-5 h-5 mb-2" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+            '    <path d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384"></path>' +
             '  </svg>' +
             '  <span class="text-sm font-medium">呼び出し</span>' +
             '</button>';
@@ -1004,7 +1004,7 @@ function setClosedRuleBtnActive(btn, active) {
         const hasWaitingGuests = derived.filteredGuests.some((g) => g.status === 'WAITING');
 
         return (
-          '<div class="bg-background flex flex-col">' +
+          '<div id="dashboard-screen" class="bg-background flex flex-col">' +
           '  <header class="bg-[#FD780F] text-white px-4 pt-4 pb-6 rounded-b-[34px] overflow-hidden">' +
           '    <div class="flex items-center justify-between mb-4">' +
           '      <button id="menu-button" class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">' +
@@ -1015,7 +1015,7 @@ function setClosedRuleBtnActive(btn, active) {
           '        </svg>' +
           '      </button>' +
           '      <img src="./public/etable-logo-white.svg" alt="ETABLE" class="h-6 w-auto" />' +
-          '      <button id="history-button" class="px-4 py-2 bg-white rounded-full text-sm font-semibold text-[#082752]">履歴</button>' +
+          '      <button id="history-button" class="px-4 py-2 bg-white rounded-full text-[10px] font-semibold text-[#FD780F] text-center">履歴</button>' +
           '    </div>' +
           '    <div class="flex items-end justify-between">' +
           '      <div>' +
@@ -1030,7 +1030,7 @@ function setClosedRuleBtnActive(btn, active) {
           '</span> 分</p>' +
           '      </div>' +
           '      <div class="flex flex-col gap-2">' +
-          '        <div class="px-2.5 py-1 bg-[#FFF7ED] rounded-full text-xs flex items-center gap-2 text-[#FD780F]">' +
+          '        <div class="px-2.5 py-1 bg-[#FFF7ED] rounded-full text-[9px] flex items-center gap-2 text-[#E56A0A]">' +
           '          <span class="leading-none font-medium">呼び出し中</span>' +
           '          <span class="font-bold text-sm leading-none">' +
           derived.callingCount +

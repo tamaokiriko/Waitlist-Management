@@ -17,6 +17,103 @@
           },
         },
       };
+      // モーダルの表示・非表示
+function toggleBusinessModal(show) {
+  const modal = document.getElementById('business-hours-modal');
+  modal.classList.toggle('hidden', !show);
+  if (show) {
+    // 開く時に初期化
+    document.querySelectorAll('.day-select-btn').forEach(btn => {
+      btn.classList.remove('bg-[#082752]', 'text-white', 'border-[#082752]');
+    });
+  }
+}
+
+// 定休日追加モーダル（ハーフモーダル）
+let closedWeeklyDay = null; // "月"など
+let closedSpecificWeek = null; // 1..4
+let closedSpecificDay = null; // "月"など
+let closedActiveMode = 'weekly'; // 'weekly' | 'specific'
+
+function toggleClosedDaysModal(show) {
+  const modal = document.getElementById('closed-days-modal');
+  if (!modal) return;
+  modal.classList.toggle('hidden', !show);
+}
+
+function updateClosedAddButtonState() {
+  const addBtn = document.getElementById('add-closed-rule');
+  if (!addBtn) return;
+
+  const canAdd =
+    closedActiveMode === 'weekly'
+      ? !!closedWeeklyDay
+      : !!closedSpecificWeek && !!closedSpecificDay;
+
+  addBtn.disabled = !canAdd;
+
+  if (canAdd) {
+    addBtn.className =
+      'mt-6 w-full py-5 bg-[#082752] text-white rounded-3xl font-bold text-lg active:scale-95 transition-transform';
+  } else {
+    addBtn.className =
+      'mt-6 w-full py-5 bg-gray-100 text-gray-400 rounded-3xl font-bold text-lg cursor-not-allowed transition-transform';
+  }
+}
+
+function initClosedDaysModal() {
+  closedWeeklyDay = null;
+  closedSpecificWeek = null;
+  closedSpecificDay = null;
+  closedActiveMode = 'weekly';
+
+  const weeklyTab = document.getElementById('closed-days-tab-weekly');
+  const specificTab = document.getElementById('closed-days-tab-specific');
+  const weeklyPanel = document.getElementById('closed-days-panel-weekly');
+  const specificPanel = document.getElementById('closed-days-panel-specific');
+
+  if (weeklyTab && specificTab) {
+    weeklyTab.className =
+      'flex-1 py-3 rounded-xl text-sm font-medium bg-[#082752] text-white';
+    specificTab.className =
+      'flex-1 py-3 rounded-xl text-sm font-medium text-gray-500';
+  }
+  if (weeklyPanel && specificPanel) {
+    weeklyPanel.classList.remove('hidden');
+    specificPanel.classList.add('hidden');
+  }
+
+  // 選択状態を確実にリセット（文字色/枠色の競合を起こさないため、初期クラスを明示的に戻す）
+  document
+    .querySelectorAll('#closed-days-modal .closed-day-btn, #closed-days-modal .closed-week-btn')
+    .forEach((btn) => {
+      btn.classList.remove('bg-[#082752]', 'text-white', 'border-[#082752]');
+      btn.classList.add('bg-white', 'text-[#082752]', 'border-gray-200');
+    });
+
+  updateClosedAddButtonState();
+}
+
+function openClosedDaysModal() {
+  initClosedDaysModal();
+  toggleClosedDaysModal(true);
+}
+
+function setClosedRuleBtnActive(btn, active) {
+  if (!btn) return;
+  if (active) {
+    btn.classList.add('bg-[#082752]', 'text-white', 'border-[#082752]');
+    btn.classList.remove('bg-white', 'text-[#082752]', 'border-gray-200');
+  } else {
+    btn.classList.remove('bg-[#082752]', 'text-white', 'border-[#082752]');
+    btn.classList.add('bg-white', 'text-[#082752]', 'border-gray-200');
+  }
+}
+
+// 曜日の選択イベント（イベント委譲で効率化）
+      // 注: クリックイベントは後述の DOMContentLoaded 側でボタン全数に対して配線します
+
+      // クリック配線（保存/背景クローズ）は DOMContentLoaded 側で実装
     </script>
     <style>
       /* globals.css からのカスタムプロパティをそのまま移植 */
@@ -87,6 +184,71 @@
         to {
           transform: translateX(0);
         }
+      }
+
+      /* business-hours-modal time input styling */
+      #business-hours-modal input[type="time"] {
+        -webkit-appearance: none;
+        appearance: none;
+        border: none;
+        outline: none;
+        background: transparent;
+        padding: 0;
+        margin: 0;
+        width: 100%;
+        display: block;
+        box-sizing: border-box;
+        text-align: center;
+        font-variant-numeric: tabular-nums;
+        line-height: 1;
+        color: #082752;
+        cursor: pointer;
+        border-radius: 12px;
+        box-shadow: none;
+        transition: background-color 120ms ease, color 120ms ease;
+      }
+      #business-hours-modal input[type="time"]::-webkit-calendar-picker-indicator {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+      #business-hours-modal input[type="time"]::-webkit-inner-spin-button,
+      #business-hours-modal input[type="time"]::-webkit-clear-button {
+        display: none;
+      }
+      #business-hours-modal input[type="time"]:hover,
+      #business-hours-modal input[type="time"]:active {
+        background: rgba(243, 244, 246, 0.9); /* gray-100 */
+        box-shadow: none;
+      }
+      #business-hours-modal input[type="time"]:focus {
+        outline: none;
+        color: #FD780F;
+        background: rgba(243, 244, 246, 0.95);
+        box-shadow: none;
+      }
+
+      /* settings: auto-cancel minutes number input */
+      #auto-cancel-minutes-input {
+        border: none;
+        outline: none;
+        background: transparent;
+        padding: 0;
+        margin: 0;
+      }
+      #auto-cancel-minutes-input:focus {
+        outline: none;
+      }
+      #auto-cancel-minutes-input::-webkit-outer-spin-button,
+      #auto-cancel-minutes-input::-webkit-inner-spin-button {
+        opacity: 1;
+      }
+
+      /* settings: call-message-input textarea width fix */
+      #call-message-input {
+        width: 100%;
+        box-sizing: border-box;
+        display: block;
       }
     </style>
   </head>
@@ -1297,17 +1459,19 @@
           // 1. 営業情報セクション
           '    <section class="space-y-4">' +
           '      <h2 class="text-sm font-bold text-[#082752]">営業情報</h2>' +
-          '      <div class="space-y-4">' +
+          '      <div id="hours-list" class="space-y-4">' +
           '        <div class="bg-white rounded-[32px] p-5 border border-gray-100 flex items-center justify-between">' +
           '          <div>' +
           '            <p class="text-xs text-gray-400 mb-1">月・火・水・木・金</p>' +
           '            <p class="text-base font-semibold text-[#082752]">10:00〜20:00</p>' +
           '          </div>' +
-          '          <button class="p-2 rounded-full hover:bg-gray-100 transition-colors">' +
-          '            <svg class="w-4 h-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
+          '          <button class="card-delete-btn p-2 rounded-full hover:bg-gray-100 transition-colors" aria-label="削除">' +
+          '            <svg class="icon-delete w-4 h-4 text-gray-400 hover:text-gray-500 transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">' +
           '              <path d="M3 6h18"></path>' +
-          '              <path d="M3 12h18"></path>' +
-          '              <path d="M3 18h18"></path>' +
+          '              <path d="M8 6V4h8v2"></path>' +
+          '              <path d="M19 6l-1 16H6L5 6"></path>' +
+          '              <path d="M10 11v6"></path>' +
+          '              <path d="M14 11v6"></path>' +
           '            </svg>' +
           '          </button>' +
           '        </div>' +
@@ -1316,15 +1480,17 @@
           '            <p class="text-xs text-gray-400 mb-1">土・日</p>' +
           '            <p class="text-base font-semibold text-[#082752]">11:00〜22:00</p>' +
           '          </div>' +
-          '          <button class="p-2 rounded-full hover:bg-gray-100 transition-colors">' +
-          '            <svg class="w-4 h-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
+          '          <button class="card-delete-btn p-2 rounded-full hover:bg-gray-100 transition-colors" aria-label="削除">' +
+          '            <svg class="icon-delete w-4 h-4 text-gray-400 hover:text-gray-500 transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">' +
           '              <path d="M3 6h18"></path>' +
-          '              <path d="M3 12h18"></path>' +
-          '              <path d="M3 18h18"></path>' +
+          '              <path d="M8 6V4h8v2"></path>' +
+          '              <path d="M19 6l-1 16H6L5 6"></path>' +
+          '              <path d="M10 11v6"></path>' +
+          '              <path d="M14 11v6"></path>' +
           '            </svg>' +
           '          </button>' +
           '        </div>' +
-          '        <button class="w-full py-4 border border-dashed border-gray-300 rounded-[32px] text-sm text-gray-500 flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors">' +
+          '        <button id="open-hours-modal" class="w-full py-4 border border-dashed border-gray-300 rounded-[32px] text-sm text-gray-500 flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors">' +
           '          <span class="text-lg">＋</span>' +
           '          <span>営業時間追加</span>' +
           '        </button>' +
@@ -1333,28 +1499,32 @@
           // 2. 定休日セクション
           '    <section class="space-y-4">' +
           '      <h2 class="text-sm font-semibold text-[#082752]">定休日</h2>' +
-          '      <div class="space-y-4">' +
+          '      <div id="closed-list" class="space-y-4">' +
           '        <div class="bg-white rounded-[32px] p-5 border border-gray-100 flex items-center justify-between">' +
           '          <p class="text-base font-semibold text-[#082752]">毎週月</p>' +
-          '          <button class="p-2 rounded-full hover:bg-gray-100 transition-colors">' +
-          '            <svg class="w-4 h-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
+          '          <button class="card-delete-btn p-2 rounded-full hover:bg-gray-100 transition-colors" aria-label="削除">' +
+          '            <svg class="icon-delete w-4 h-4 text-gray-400 hover:text-gray-500 transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">' +
           '              <path d="M3 6h18"></path>' +
-          '              <path d="M3 12h18"></path>' +
-          '              <path d="M3 18h18"></path>' +
+          '              <path d="M8 6V4h8v2"></path>' +
+          '              <path d="M19 6l-1 16H6L5 6"></path>' +
+          '              <path d="M10 11v6"></path>' +
+          '              <path d="M14 11v6"></path>' +
           '            </svg>' +
           '          </button>' +
           '        </div>' +
           '        <div class="bg-white rounded-[32px] p-5 border border-gray-100 flex items-center justify-between">' +
           '          <p class="text-base font-semibold text-[#082752]">第3水曜日</p>' +
-          '          <button class="p-2 rounded-full hover:bg-gray-100 transition-colors">' +
-          '            <svg class="w-4 h-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
+          '          <button class="card-delete-btn p-2 rounded-full hover:bg-gray-100 transition-colors" aria-label="削除">' +
+          '            <svg class="icon-delete w-4 h-4 text-gray-400 hover:text-gray-500 transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">' +
           '              <path d="M3 6h18"></path>' +
-          '              <path d="M3 12h18"></path>' +
-          '              <path d="M3 18h18"></path>' +
+          '              <path d="M8 6V4h8v2"></path>' +
+          '              <path d="M19 6l-1 16H6L5 6"></path>' +
+          '              <path d="M10 11v6"></path>' +
+          '              <path d="M14 11v6"></path>' +
           '            </svg>' +
           '          </button>' +
           '        </div>' +
-          '        <button class="w-full py-4 border border-dashed border-gray-300 rounded-[32px] text-sm text-gray-500 flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors">' +
+          '        <button id="open-closed-days-modal" class="w-full py-4 border border-dashed border-gray-300 rounded-[32px] text-sm text-gray-500 flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors">' +
           '          <span class="text-lg">＋</span>' +
           '          <span>定休日を追加</span>' +
           '        </button>' +
@@ -1390,9 +1560,7 @@
           '      <div class="bg-white rounded-[32px] p-5 border border-gray-100 space-y-4">' +
           '        <div>' +
           '          <p class="text-xs text-gray-500 mb-2">呼び出しメッセージ</p>' +
-          '          <div class="bg-gray-50 rounded-2xl border border-gray-100 px-4 py-3 text-sm text-gray-700">' +
-          '            番号 {number} のお客様、ご来店をお願いいたします。' +
-          '          </div>' +
+          '          <textarea id="call-message-input" rows="3" spellcheck="false" class="bg-gray-50 rounded-2xl border border-gray-100 px-4 py-3 text-sm text-gray-700 outline-none resize-none leading-relaxed" >番号 {number} のお客様、ご来店をお願いいたします。</textarea>' +
           '        </div>' +
           '        <div>' +
           '          <p class="flex items-center gap-2 text-xs text-gray-500 mb-2">' +
@@ -1403,7 +1571,7 @@
           '            プレビュー' +
           '          </p>' +
           '          <div class="bg-[#082752] rounded-[32px] px-6 py-5 text-white text-sm leading-relaxed shadow-sm">' +
-          '            <p class="font-medium mb-1">番号 12 のお客様、ご来店をお願いいたします。</p>' +
+          '            <p id="call-message-preview-text" class="font-medium mb-1">番号 12 のお客様、ご来店をお願いいたします。</p>' +
           '            <p class="text-xs text-white/70">スタッフまでお声がけください。</p>' +
           '          </div>' +
           '        </div>' +
@@ -1416,7 +1584,7 @@
           '        <p class="text-xs text-gray-500 mb-2">自動キャンセルに移行する時間（分）</p>' +
           '        <div class="flex items-center">' +
           '          <div class="flex-1 flex items-center bg-gray-50 rounded-xl border border-gray-200 px-4 py-3">' +
-          '            <span class="flex-1 text-sm text-[#082752]">10</span>' +
+          '            <input id="auto-cancel-minutes-input" type="number" inputmode="numeric" min="1" max="120" step="1" value="10" class="flex-1 text-sm text-[#082752] bg-transparent outline-none text-center tabular-nums" />' +
           '            <span class="text-xs text-gray-400">分</span>' +
           '          </div>' +
           '        </div>' +
@@ -1851,6 +2019,17 @@
           }
           if (saveBtn) {
             saveBtn.addEventListener('click', () => {
+              const callMessageInput = document.getElementById('call-message-input');
+              const autoCancelInput = document.getElementById('auto-cancel-minutes-input');
+
+              const rawMessage = callMessageInput ? callMessageInput.value : '';
+              const minutesValue = autoCancelInput ? parseInt(autoCancelInput.value, 10) : 10;
+              const autoCancelMinutes = Number.isNaN(minutesValue)
+                ? 10
+                : Math.max(1, Math.min(120, minutesValue));
+
+              state.callMessage = rawMessage;
+              state.autoCancelMinutes = autoCancelMinutes;
               alert('設定を保存しました');
               goBackToMain();
             });
@@ -1863,7 +2042,7 @@
             // 1. 営業時間 追加・削除
             const hoursSection = sections[0];
             if (hoursSection) {
-              const hoursList = hoursSection.querySelector('div.space-y-4');
+              const hoursList = hoursSection.querySelector('#hours-list');
               if (hoursList) {
                 const hourCards = hoursList.querySelectorAll('div.bg-white');
                 hourCards.forEach((card) => {
@@ -1872,17 +2051,10 @@
                     delBtn.addEventListener('click', () => card.remove());
                   }
                 });
-                const addHoursBtn = hoursList.querySelector('button.w-full');
+                const addHoursBtn = hoursList.querySelector('#open-hours-modal');
                 if (addHoursBtn) {
                   addHoursBtn.addEventListener('click', () => {
-                    const baseCard = hoursList.querySelector('div.bg-white');
-                    if (!baseCard) return;
-                    const clone = baseCard.cloneNode(true);
-                    hoursList.insertBefore(clone, addHoursBtn);
-                    const delBtn = clone.querySelector('button');
-                    if (delBtn) {
-                      delBtn.addEventListener('click', () => clone.remove());
-                    }
+                    toggleBusinessModal(true);
                   });
                 }
               }
@@ -1891,7 +2063,7 @@
             // 2. 定休日 追加・削除
             const closedSection = sections[1];
             if (closedSection) {
-              const closedList = closedSection.querySelector('div.space-y-4');
+              const closedList = closedSection.querySelector('#closed-list');
               if (closedList) {
                 const closedCards = closedList.querySelectorAll('div.bg-white');
                 closedCards.forEach((card) => {
@@ -1900,17 +2072,10 @@
                     delBtn.addEventListener('click', () => card.remove());
                   }
                 });
-                const addClosedBtn = closedList.querySelector('button.w-full');
+                const addClosedBtn = closedList.querySelector('#open-closed-days-modal');
                 if (addClosedBtn) {
                   addClosedBtn.addEventListener('click', () => {
-                    const baseCard = closedList.querySelector('div.bg-white');
-                    if (!baseCard) return;
-                    const clone = baseCard.cloneNode(true);
-                    closedList.insertBefore(clone, addClosedBtn);
-                    const delBtn = clone.querySelector('button');
-                    if (delBtn) {
-                      delBtn.addEventListener('click', () => clone.remove());
-                    }
+                    openClosedDaysModal();
                   });
                 }
               }
@@ -1937,6 +2102,32 @@
                   }
                 });
               });
+            }
+
+            // 呼び出しメッセージ：入力内容をリアルタイムでプレビュー反映
+            const callMessageInput = document.getElementById('call-message-input');
+            const callMessagePreview = document.getElementById('call-message-preview-text');
+            if (callMessageInput && callMessagePreview) {
+              const updatePreview = () => {
+                const raw = callMessageInput.value || '';
+                callMessagePreview.textContent = raw.replace(/\{number\}/g, '12');
+              };
+              callMessageInput.addEventListener('input', updatePreview);
+              updatePreview();
+            }
+
+            // 自動キャンセルに移行する時間（分）：矢印で増減 + 範囲を固定
+            const autoCancelInput = document.getElementById('auto-cancel-minutes-input');
+            if (autoCancelInput) {
+              const clampMinutes = () => {
+                let n = parseInt(autoCancelInput.value, 10);
+                if (Number.isNaN(n)) n = 10;
+                n = Math.max(1, Math.min(120, n));
+                autoCancelInput.value = String(n);
+                state.autoCancelMinutes = n;
+              };
+              autoCancelInput.addEventListener('input', clampMinutes);
+              clampMinutes();
             }
           }
 
@@ -1966,8 +2157,338 @@
 
       window.addEventListener('DOMContentLoaded', () => {
         render();
+
+        // 曜日の選択（全ボタンに click 配線、classList.toggle のみでトグル）
+        document.querySelectorAll('#business-hours-modal .day-select-btn').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            btn.classList.toggle('bg-[#082752]');
+            btn.classList.toggle('text-white');
+            btn.classList.toggle('border-[#082752]');
+          });
+        });
+
+        // 保存ボタン配線（カード追加 / モーダルクローズ）
+        const saveBtn = document.getElementById('save-business-hours');
+        if (saveBtn) {
+          saveBtn.addEventListener('click', () => {
+            const startInput = document.getElementById('start-time-input');
+            const endInput = document.getElementById('end-time-input');
+            if (!startInput || !endInput) return;
+
+            const selectedDays = Array.from(
+              document.querySelectorAll('#business-hours-modal .day-select-btn.text-white')
+            ).map((btn) => btn.textContent.trim());
+
+            if (selectedDays.length === 0) {
+              alert('曜日を選択してください');
+              return;
+            }
+
+            const newHours = {
+              days: selectedDays.join('・'),
+              time: `${startInput.value}〜${endInput.value}`,
+            };
+
+            const listContainer = document.querySelector('#hours-list');
+            const openHoursBtn = document.getElementById('open-hours-modal');
+            if (!listContainer || !openHoursBtn) {
+              toggleBusinessModal(false);
+              return;
+            }
+
+            const newCard = document.createElement('div');
+            // 既存カードと同じ class / 構造に揃えて、ゴミ箱アイコン位置のズレをなくす
+            newCard.className =
+              'bg-white rounded-[32px] p-5 border border-gray-100 flex items-center justify-between';
+            newCard.innerHTML = `
+              <div>
+                <p class="text-xs text-gray-400 mb-1">${newHours.days}</p>
+                <p class="text-base font-semibold text-[#082752]">${newHours.time}</p>
+              </div>
+              <button class="card-delete-btn p-2 rounded-full hover:bg-gray-100 transition-colors" type="button" aria-label="削除">
+                <svg class="icon-delete w-4 h-4 text-gray-400 hover:text-gray-500 transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M3 6h18"></path>
+                  <path d="M8 6V4h8v2"></path>
+                  <path d="M19 6l-1 16H6L5 6"></path>
+                  <path d="M10 11v6"></path>
+                  <path d="M14 11v6"></path>
+                </svg>
+              </button>
+            `;
+
+            const deleteBtn = newCard.querySelector('.card-delete-btn');
+            if (deleteBtn) {
+              deleteBtn.addEventListener('click', () => {
+                newCard.remove();
+              });
+            }
+
+            // 「＋ 営業時間追加」ボタンのすぐ上に挿入
+            listContainer.insertBefore(newCard, openHoursBtn);
+
+            toggleBusinessModal(false);
+          });
+        }
+
+        // 背景クリックで閉じる
+        const modal = document.getElementById('business-hours-modal');
+        if (modal) {
+          modal.addEventListener('click', (e) => {
+            if (e.target && e.target.id === 'business-hours-modal') toggleBusinessModal(false);
+          });
+        }
+
+        // 定休日追加モーダル配線
+        const weeklyTab = document.getElementById('closed-days-tab-weekly');
+        const specificTab = document.getElementById('closed-days-tab-specific');
+        const addClosedBtn = document.getElementById('add-closed-rule');
+
+        const weeklyPanel = document.getElementById('closed-days-panel-weekly');
+        const specificPanel = document.getElementById('closed-days-panel-specific');
+
+        if (weeklyTab && specificTab && addClosedBtn && weeklyPanel && specificPanel) {
+          weeklyTab.addEventListener('click', () => {
+            closedActiveMode = 'weekly';
+            weeklyTab.className =
+              'flex-1 py-3 rounded-xl text-sm font-medium bg-[#082752] text-white';
+            specificTab.className =
+              'flex-1 py-3 rounded-xl text-sm font-medium text-gray-500';
+
+            weeklyPanel.classList.remove('hidden');
+            specificPanel.classList.add('hidden');
+            updateClosedAddButtonState();
+          });
+
+          specificTab.addEventListener('click', () => {
+            closedActiveMode = 'specific';
+            weeklyTab.className =
+              'flex-1 py-3 rounded-xl text-sm font-medium text-gray-500';
+            specificTab.className =
+              'flex-1 py-3 rounded-xl text-sm font-medium bg-[#082752] text-white';
+
+            weeklyPanel.classList.add('hidden');
+            specificPanel.classList.remove('hidden');
+            updateClosedAddButtonState();
+          });
+
+          // 毎週タブ：曜日は 1 つだけ選択
+          document
+            .querySelectorAll('#closed-weekly-day-grid .closed-day-btn')
+            .forEach((btn) => {
+              btn.addEventListener('click', () => {
+                closedActiveMode = 'weekly';
+                closedWeeklyDay = btn.textContent.trim();
+
+                document
+                  .querySelectorAll('#closed-weekly-day-grid .closed-day-btn')
+                  .forEach((b) => setClosedRuleBtnActive(b, false));
+                setClosedRuleBtnActive(btn, true);
+                updateClosedAddButtonState();
+              });
+            });
+
+          // 特定週タブ：第N週の選択
+          document
+            .querySelectorAll('#closed-specific-week-grid .closed-week-btn')
+            .forEach((btn) => {
+              btn.addEventListener('click', () => {
+                closedActiveMode = 'specific';
+                closedSpecificWeek = btn.getAttribute('data-week');
+
+                document
+                  .querySelectorAll('#closed-specific-week-grid .closed-week-btn')
+                  .forEach((b) => setClosedRuleBtnActive(b, false));
+                setClosedRuleBtnActive(btn, true);
+                updateClosedAddButtonState();
+              });
+            });
+
+          // 特定週タブ：曜日の選択
+          document
+            .querySelectorAll('#closed-specific-day-grid .closed-day-btn')
+            .forEach((btn) => {
+              btn.addEventListener('click', () => {
+                closedActiveMode = 'specific';
+                closedSpecificDay = btn.textContent.trim();
+
+                document
+                  .querySelectorAll('#closed-specific-day-grid .closed-day-btn')
+                  .forEach((b) => setClosedRuleBtnActive(b, false));
+                setClosedRuleBtnActive(btn, true);
+                updateClosedAddButtonState();
+              });
+            });
+
+          // ルール追加
+          addClosedBtn.addEventListener('click', () => {
+            if (addClosedBtn.disabled) return;
+
+            const closedList = document.getElementById('closed-list');
+            const openClosedBtn = document.getElementById('open-closed-days-modal');
+            if (!closedList || !openClosedBtn) return;
+
+            let label = '';
+            if (closedActiveMode === 'weekly') {
+              label = `毎週${closedWeeklyDay}`;
+            } else {
+              label = `第${closedSpecificWeek}${closedSpecificDay}曜日`;
+            }
+
+            const newCard = document.createElement('div');
+            newCard.className =
+              'bg-white rounded-[32px] p-5 border border-gray-100 flex items-center justify-between';
+            newCard.innerHTML = `
+              <div>
+                <p class="text-base font-semibold text-[#082752]">${label}</p>
+              </div>
+              <button class="card-delete-btn p-2 rounded-full hover:bg-gray-100 transition-colors" type="button" aria-label="削除">
+                <svg class="icon-delete w-4 h-4 text-gray-400 hover:text-gray-500 transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M3 6h18"></path>
+                  <path d="M8 6V4h8v2"></path>
+                  <path d="M19 6l-1 16H6L5 6"></path>
+                  <path d="M10 11v6"></path>
+                  <path d="M14 11v6"></path>
+                </svg>
+              </button>
+            `;
+
+            const deleteBtn = newCard.querySelector('.card-delete-btn');
+            if (deleteBtn) {
+              deleteBtn.addEventListener('click', () => {
+                newCard.remove();
+              });
+            }
+
+            closedList.insertBefore(newCard, openClosedBtn);
+            toggleClosedDaysModal(false);
+          });
+        }
+
+        // 背景クリックで閉じる（定休日追加モーダル）
+        const closedModal = document.getElementById('closed-days-modal');
+        if (closedModal) {
+          closedModal.addEventListener('click', (e) => {
+            if (e.target && e.target.id === 'closed-days-modal') toggleClosedDaysModal(false);
+          });
+        }
       });
     </script>
+    <div id="business-hours-modal" class="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm hidden flex items-end justify-center">
+      <div class="bg-white w-full max-w-md rounded-t-[40px] p-8 pb-14 shadow-2xl animate-in slide-in-from-bottom duration-300">
+        <div class="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-8"></div>
+        
+        <h2 class="text-xl font-bold text-[#082752] text-center mb-10">営業時間の設定</h2>
+    
+        <div class="flex items-center justify-between gap-4 mb-12">
+          <div class="min-w-[110px] text-center flex-none">
+            <p class="text-xs text-gray-400 mb-2">開始</p>
+            <input type="time" id="start-time-input" value="10:00" class="time-input text-4xl leading-none font-bold text-[#082752] bg-transparent outline-none text-center tabular-nums focus:text-[#FD780F]">
+          </div>
+          <div class="text-2xl text-gray-200">〜</div>
+          <div class="min-w-[110px] text-center flex-none">
+            <p class="text-xs text-gray-400 mb-2">終了</p>
+            <input type="time" id="end-time-input" value="20:00" class="time-input text-4xl leading-none font-bold text-[#082752] bg-transparent outline-none text-center tabular-nums focus:text-[#FD780F]">
+          </div>
+        </div>
+    
+        <div class="mb-10">
+          <p class="text-xs text-gray-400 mb-4">対象の曜日</p>
+          <div class="grid grid-cols-4 gap-3" id="day-selection-grid">
+            <button class="day-select-btn h-12 rounded-2xl border border-gray-200 text-sm font-medium text-[#082752] transition-all">月</button>
+            <button class="day-select-btn h-12 rounded-2xl border border-gray-200 text-sm font-medium text-[#082752] transition-all">火</button>
+            <button class="day-select-btn h-12 rounded-2xl border border-gray-200 text-sm font-medium text-[#082752] transition-all">水</button>
+            <button class="day-select-btn h-12 rounded-2xl border border-gray-200 text-sm font-medium text-[#082752] transition-all">木</button>
+            <button class="day-select-btn h-12 rounded-2xl border border-gray-200 text-sm font-medium text-[#082752] transition-all">金</button>
+            <button class="day-select-btn h-12 rounded-2xl border border-gray-200 text-sm font-medium text-[#082752] transition-all">土</button>
+            <button class="day-select-btn h-12 rounded-2xl border border-gray-200 text-sm font-medium text-[#082752] transition-all">日</button>
+          </div>
+        </div>
+    
+        <button id="save-business-hours" class="w-full py-5 bg-[#082752] text-white rounded-3xl font-bold text-lg active:scale-95 transition-transform">
+          保存する
+        </button>
+      </div>
+    </div>
+
+    <!-- 定休日追加モーダル -->
+    <div
+      id="closed-days-modal"
+      class="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm hidden flex items-end justify-center"
+    >
+      <div class="bg-white w-full max-w-md rounded-t-[40px] p-8 pb-10 shadow-2xl animate-in slide-in-from-bottom duration-300">
+        <div class="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-8"></div>
+
+        <h2 class="text-xl font-bold text-[#082752] text-center mb-10">定休日の追加</h2>
+
+        <div class="bg-gray-100 p-1 rounded-2xl flex gap-2 mb-8">
+          <button
+            id="closed-days-tab-weekly"
+            class="flex-1 py-3 rounded-xl text-sm font-medium bg-[#082752] text-white"
+            type="button"
+          >
+            毎週
+          </button>
+          <button
+            id="closed-days-tab-specific"
+            class="flex-1 py-3 rounded-xl text-sm font-medium text-gray-500"
+            type="button"
+          >
+            特定週
+          </button>
+        </div>
+
+        <!-- 毎週タブ -->
+        <div id="closed-days-panel-weekly" class="space-y-4">
+          <div>
+            <p class="text-xs text-gray-400 mb-4">曜日</p>
+            <div class="grid grid-cols-4 gap-3" id="closed-weekly-day-grid">
+              <button class="closed-day-btn h-12 rounded-2xl border border-gray-200 bg-white text-sm font-medium text-[#082752] transition-all" type="button">月</button>
+              <button class="closed-day-btn h-12 rounded-2xl border border-gray-200 bg-white text-sm font-medium text-[#082752] transition-all" type="button">火</button>
+              <button class="closed-day-btn h-12 rounded-2xl border border-gray-200 bg-white text-sm font-medium text-[#082752] transition-all" type="button">水</button>
+              <button class="closed-day-btn h-12 rounded-2xl border border-gray-200 bg-white text-sm font-medium text-[#082752] transition-all" type="button">木</button>
+              <button class="closed-day-btn h-12 rounded-2xl border border-gray-200 bg-white text-sm font-medium text-[#082752] transition-all" type="button">金</button>
+              <button class="closed-day-btn h-12 rounded-2xl border border-gray-200 bg-white text-sm font-medium text-[#082752] transition-all" type="button">土</button>
+              <button class="closed-day-btn h-12 rounded-2xl border border-gray-200 bg-white text-sm font-medium text-[#082752] transition-all" type="button">日</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 特定週タブ -->
+        <div id="closed-days-panel-specific" class="space-y-4 hidden">
+          <div>
+            <p class="text-xs text-gray-400 mb-4">第</p>
+            <div class="grid grid-cols-4 gap-3" id="closed-specific-week-grid">
+              <button class="closed-week-btn h-12 rounded-2xl border border-gray-200 bg-white text-sm font-medium text-[#082752] transition-all" data-week="1" type="button">第1</button>
+              <button class="closed-week-btn h-12 rounded-2xl border border-gray-200 bg-white text-sm font-medium text-[#082752] transition-all" data-week="2" type="button">第2</button>
+              <button class="closed-week-btn h-12 rounded-2xl border border-gray-200 bg-white text-sm font-medium text-[#082752] transition-all" data-week="3" type="button">第3</button>
+              <button class="closed-week-btn h-12 rounded-2xl border border-gray-200 bg-white text-sm font-medium text-[#082752] transition-all" data-week="4" type="button">第4</button>
+            </div>
+          </div>
+
+          <div>
+            <p class="text-xs text-gray-400 mb-4">曜日</p>
+            <div class="grid grid-cols-4 gap-3" id="closed-specific-day-grid">
+              <button class="closed-day-btn h-12 rounded-2xl border border-gray-200 bg-white text-sm font-medium text-[#082752] transition-all" type="button">月</button>
+              <button class="closed-day-btn h-12 rounded-2xl border border-gray-200 bg-white text-sm font-medium text-[#082752] transition-all" type="button">火</button>
+              <button class="closed-day-btn h-12 rounded-2xl border border-gray-200 bg-white text-sm font-medium text-[#082752] transition-all" type="button">水</button>
+              <button class="closed-day-btn h-12 rounded-2xl border border-gray-200 bg-white text-sm font-medium text-[#082752] transition-all" type="button">木</button>
+              <button class="closed-day-btn h-12 rounded-2xl border border-gray-200 bg-white text-sm font-medium text-[#082752] transition-all" type="button">金</button>
+              <button class="closed-day-btn h-12 rounded-2xl border border-gray-200 bg-white text-sm font-medium text-[#082752] transition-all" type="button">土</button>
+              <button class="closed-day-btn h-12 rounded-2xl border border-gray-200 bg-white text-sm font-medium text-[#082752] transition-all" type="button">日</button>
+            </div>
+          </div>
+        </div>
+
+        <button
+          id="add-closed-rule"
+          disabled
+          class="mt-6 w-full py-5 bg-gray-100 text-gray-400 rounded-3xl font-bold text-lg cursor-not-allowed transition-transform"
+          type="button"
+        >
+          ルールを追加する
+        </button>
+      </div>
+    </div>
   </body>
 </html>
 
